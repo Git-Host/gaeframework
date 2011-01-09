@@ -1,0 +1,17 @@
+"Yes": Да
+"yes": да
+"No": Нет
+"no": нет
+Cancel: Отмена
+
+# form: default choice
+"---------": -- Выберите --
+
+# form: validation
+Value is too short: Значение слишком короткое
+
+# pagination
+back: назад
+next: вперед
+Page: Страница
+from: из

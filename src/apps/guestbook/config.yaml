@@ -1,0 +1,6 @@
+urls:
+- url:
+  run: items_list
+
+- url: create_item
+  run: create_item

@@ -1,0 +1,15 @@
+urls:
+- url:
+  run: user_profile
+
+- url: login
+  run: login
+
+- url: logout
+  run: logout
+
+- url: registration
+  run: registration
+
+- url: :user
+  run: user_profile

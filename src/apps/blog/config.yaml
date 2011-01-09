@@ -1,0 +1,33 @@
+urls:
+- url:
+  run: entities_list
+
+- url: all
+  run: blogs_list
+
+- url: new
+  run: blog_create
+
+- url: :blog/edit
+  run: blog_edit
+
+- url: :blog/delete
+  run: blog_delete
+
+- url: :blog/new
+  run: entity_create
+
+- url: :blog/:entity/edit
+  run: entity_edit
+
+- url: :blog/:entity/delete
+  run: entity_delete
+
+- url: :blog
+  run: entities_list
+
+- url: :blog/tag/:tags
+  run: entities_list
+
+- url: :blog/:entity
+  run: entity_details

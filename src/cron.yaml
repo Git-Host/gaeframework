@@ -1,0 +1,4 @@
+cron:
+- description: Do something useful
+  url: /cronjobs
+  schedule: every 1 minutes

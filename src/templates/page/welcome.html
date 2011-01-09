@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block base_content %}
+  <h1>Welcome!</h1>
+
+  <p>Your new project based on <a href="http://gaeframework.com">GAE framework</a> is launched.</p>
+
+  <p>
+    Below we discuss about how to configure your project and launch your site
+    in the web.
+  </p>
+
+  <h3>Create new project</h3>
+
+  <p>Create new empty project with two directories: <b>src</b> (for source code)
+  and <b>doc</b> (for project documentation). We recommend you use
+  version control system (<a href="http://subversion.tigris.org">Subversion</a>
+  or <a href="http://mercurial.selenic.com/downloads/">Mercurial</a>).</p>
+
+  <p>Download <a href="http://code.google.com/p/appengine-framework/downloads/list">latest version</a>
+  of GAE framework. Unpack it. Copy contents to your project <b>src</b> directory.</p>
+
+  <p><img src="/static/img/guide/project-structure.png"/></p>
+
+  <h3>Configure your project</h3>
+
+  <p>Change <b>project settings</b> in <code>apps/config.yaml</code> file.</p>
+
+  <h4>Set appspot ID</h4>
+
+  <p>Open file <code>app.yaml</code> and set your application ID like this
+  <code>application: my-project-id</code>. If you have not an application ID than
+  register new application on <a href="http://appspot.com">appspot.com</a></p>
+
+  <h4>Change urls mapping</h4>
+
+  <p>By default, site homepage is static page, located in
+  <code>temlates/page/welcome.html</code>. You can change this behavior by
+  changing your <code>urls</code> section in project configuration file.</p>
+
+  <p>Each url rule consist of:</p>
+
+  <ul>
+    <li><b>url</b> - defines what path should be used for match requested page</li>
+    <li><b>run</b> - define request handler in format
+      <code>app_name.handler_name</code>, where <code>handler_name</code> is function
+      from file <code>apps/app_name/controllers.py</code></li>
+    <li><b>map</b> - define additional urls mapping for use to the continue search
+      requested path. We need define application name, and this is equal to use
+      <code>urls</code> section from <code>apps/app_name/config.yaml</code> file</li>
+    <li><b>arg</b> - additional arguments, passed to request handler</li>
+  </ul>
+  
+  <p>You can use only <b>run</b> or <b>map</b> option separately. Don't use this both
+  options in the same url rule!</p>
+
+  <h4>Customize standard applications</h4>
+
+  <p>Many useful applications you can found in <code>apps</code> directory.</p>
+
+  <p>You can change design and behavior of all applications without
+  changes in his source code.</p>
+
+  <p>You can redefine:</p>
+
+  <ul>
+    <li><b>templates</b> for change application design. Copy some template
+      files from directory <code>apps/app_name/templates</code> to
+      <code>templates/app_name</code> and change this files</li>
+    <li><b>configuration</b> for change application behavior. Copy appropriate
+      options from <code>apps/app_name/conig.yaml</code> to
+      <code>urls: app_name</code> section in the file <code>apps/config.yaml</code></li>
+  </ul>
+
+  <h3>Create your applications</h3>
+  
+  <p>Learn what is already created in <code>apps</code> directory and
+  make similar application with your custom logic in this directory.</p>
+
+  <h3>Check news and updates</h3>
+  
+  <p><b>GAE framework</b> is in active development process. Visit our official
+  website <a href="http://gaeframework.com">gaeframework.com</a> for get latest
+  news and updates around <b>Google App Engine</b> and our project.</p>
+  
+  <p><b>Follow us</b> on
+  <a href="http://twitter.com/gaeframework">Twitter</a>,
+  <a href="http://www.youtube.com/user/GAEframework">YouTube</a>,
+  <a href="http://www.facebook.com/group.php?gid=395531586756">FaceBook</a></p>
+  
+  <p>We welcome new members in project - developers, documentation writers,
+  people who can help popularize project around the web.</p>
+  
+  <p><b>If you like the project</b> you can
+  <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=3EQ47CN5EVJE8&lc=UA&item_name=AppEngine%20framework&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted">make donations</a>
+  to help our team grow up more faster.</p>
+  
+  <p class="last">Thank you!</p>
+{% endblock %}

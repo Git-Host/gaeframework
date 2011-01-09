@@ -1,0 +1,84 @@
+{% extends 'admin.html' %}
+
+{% block title %}List of records in model {{ app|capfirst }}.{{ model|capfirst }}{% endblock %}
+
+{% block content %}
+  <h3>
+    <a href="/{{ app }}">Administrate</a>
+    &raquo;
+    <a href="/{{ app }}/{{ managed_app }}">{{ managed_app|capfirst }}</a>
+    &raquo;
+    {{ model_name|capfirst }}
+  </h3>
+
+  <form action="/{{ app }}/{{ managed_app }}/{{ model }}" method="post" class="admin_model_records">
+    <a href="/{{ app }}/{{ managed_app }}/{{ model }}/new" class="button">New record</a>
+    <input type="submit" name="delete" value="Delete" class="confirm disabled" title="Delete selected records" disabled="disabled" />
+    <input type="submit" name="save" value="Save" class="confirm disabled" title="Save changes" disabled="disabled" />
+    <input type="checkbox" id="form_edit"/>
+    <label for="form_edit">edit</label>
+    <table>
+      <tr>
+      {% for field in fields %}
+        {% if forloop.first %}
+        <th width="20px;" class="hide">
+          <input type="checkbox" title="Select all records" id="form_select_all" />
+        </th>
+        {% endif %}
+        <th>{{ field.name|capfirst }}</th>
+      {% endfor %}
+      </tr>
+      {% for record in records %}
+        <tr class="horizontal">
+          {# HEADER #}
+          {% if forloop.first %}
+            {% for field in record %}
+              {% if forloop.first %}
+                <th width="30px;">
+                  <input type="checkbox" title="Select all records" id="form_select_all" />
+                </th>
+              {% else %}
+                <th title="Type is {{ field.type }}">
+                  {{ field.name|capfirst }}
+                </th>
+              {% endif %}
+            {% endfor %}
+            <th>
+              &nbsp;
+            </th>
+          {% else %}
+            {% for field in record %}
+              {# SHOW FIELD VALUE #}
+              <td>
+                {% if field.type == "Boolean" %}
+                  {% if forloop.first %}
+                    <input type="checkbox" name="delete_records" value="{{ field.value }}" class="form_delete_records"/>
+                  {% else %}
+                    <input type="checkbox" name="{{ field.name }}" value="{{ field.value }}" {% if field.value %}checked="checked"{% endif %} />
+                  {% endif %}
+                {% endif %}
+                {% if field.type == "String" %}
+                  {{ field.value }}
+                {% endif %}
+                {% if field.type == "User" %}
+                  {{ field.value }}
+                {% endif %}
+              </td>
+            {% endfor %}
+            <td>
+              <a href="/{{ app }}/{{ managed_app }}/{{ model }}/edit/{{ record.0.value }}" class="button mini">Edit</a>
+              <a href="/{{ app }}/{{ managed_app }}/{{ model }}/delete/{{ record.0.value }}" class="button mini confirm">Delete</a>
+            </td>
+          {% endif %}
+        </tr>
+      {% empty %}
+        <tr>
+          <td class="hide">&nbsp;</td>
+          <td class="center" colspan="{{fields|length}}">{% translate "No entities found" %}</td>
+        </tr>
+      {% endfor %}
+    </table>
+  </form>
+
+  {% show_pages records %}
+{% endblock %}

@@ -1,0 +1,39 @@
+form {
+  padding: 3px;
+}
+table {
+  border-spacing: 0;
+  width: 99%;
+  margin: 3px auto;
+}
+td,
+th {
+  padding: 2px 5px;
+}
+th {
+  background-color: #eee;
+}
+form.admin_model_records table {
+  border: solid 1px #eee;
+}
+tr:HOVER {
+}
+td a {
+  cursor: pointer;
+}
+
+input[type=submit].disabled {
+  background-color: #eee;
+  border: solid 1px #ddd;
+  color: #999;
+}
+input[type=submit].disabled:HOVER {
+  background-color: #ddd;
+  cursor: auto;
+}
+
+form.admin_create_record th,
+form.admin_edit_record th {
+  text-align: right;
+  background-color: inherit;
+}

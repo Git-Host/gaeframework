@@ -1,0 +1,75 @@
+{% load banner %}
+<html>
+<head>
+  <title>{% block base_title %}Welcome{% endblock %} | GAE framework: designed for Google App Engine and Python</title>
+  <link type="text/css" rel="stylesheet" href="/static/css/base.css" />
+  {% block base_css %}{% endblock %}
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="/static/js/base.js"></script>
+  {% block base_js %}{% endblock %}
+</head>
+<body>
+
+<div id="page">
+  <div class="header">
+    <table>
+      <tr>
+        <td class="logo">
+          <a href="/" title="GAE framework homepage">
+            <img src="/static/img/logo.png" alt="GAE framework" />
+          </a>
+        </td>
+        <td class="description">
+          <b>GAE framework</b> is a <b>Python</b> web application framework designed
+          for use on <b>Google App Engine</b> servers
+        </td>
+        <td>&nbsp;</td>
+      </tr>
+    </table>
+    
+    <div class="subheader">
+      <form action="/" method="get">
+        <input type="text" name="search" class="search" value="Search">
+      </form>
+      {% show_banner adsense_468x15 %}
+      <p class="login">
+      {% if user %}
+        Hello <b>{{ user.email }}</b>! <a href="/user/logout">Logout</a>
+      {% else %}
+        <a href="/user/login">Login</a> to site
+      {% endif %}
+      </p>
+    </div>
+    Applications: 
+    <a href="/admin">Admin</a>,
+    <a href="/blog">Blog</a>,
+    <a href="/guestbook">Guest book</a>,
+    <a href="/todo">Todo</a>
+  </div>
+
+  <div class="sidebar">
+    {% block base_sidebar %}{% endblock %}
+    <div class="last">{% show_banner adsense_200x200 %}</div>
+  </div>
+
+  <div class="content">
+    {% block base_content %}{% endblock %}
+  </div>
+  <div class="clear"></div>
+</div>
+
+<div id="footer">
+  <b>Follow us</b> on
+  <a href="http://www.facebook.com/group.php?gid=395531586756">Facebook</a>
+  <a href="http://twitter.com/gaeframework">Twitter</a>
+  <a href="http://www.youtube.com/user/GAEframework">YouTube</a>
+  <a href="http://groups.google.com/group/gaeframework">Support group</a>
+
+  <a href="http://gaeframework.com" class="logo" title="Powered by GAE framework">
+    <img src="/static/img/powered_by_gae.png" alt="[ GAE framework ]" />
+  </a>
+</div>
+
+</body>
+</html>

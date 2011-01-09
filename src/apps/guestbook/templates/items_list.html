@@ -1,0 +1,21 @@
+{% extends 'guestbook.html' %}
+
+{% block title %}All records{% endblock %}
+
+{% block content %}
+  <h3>Guestbook</h3>
+
+  {% for greeting in greetings %}
+    <p>
+    {% if greeting.author %}
+      <b>{{ greeting.author.nickname }}</b> wrote:
+    {% else %}
+      An <b>anonymous</b> person wrote:
+    {% endif %}
+    <br/>
+    {{ greeting.content|escape|linebreaksbr }}
+    </p>
+  {% endfor %}
+
+  <a href="{{ app }}/create_item">Add message</a>
+{% endblock %}
