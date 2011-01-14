@@ -36,7 +36,7 @@
       {% show_banner adsense_468x15 %}
       <p class="login">
       {% if user %}
-        Hello <b>{{ user.email }}</b>! <a href="/user/logout">Logout</a>
+        Hello <b>{{ user }}</b>! <a href="/user/logout">Logout</a>
       {% else %}
         <a href="/user/login">Login</a> to site
       {% endif %}
