@@ -19,5 +19,12 @@ indexes:
 - kind: BlogEntity
   properties:
   - name: active
+  - name: blog
+  - name: changed
+    direction: desc
+
+- kind: BlogEntity
+  properties:
+  - name: active
   - name: changed
     direction: desc
