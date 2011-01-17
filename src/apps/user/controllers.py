@@ -2,7 +2,7 @@
 User account management.
 '''
 from apps.user.forms import UserLoginForm, UserRegistrationForm
-from apps.user.models import LocalUser
+from apps.user.models import User
 from apps.user import login_required
 
 
@@ -13,7 +13,7 @@ def login(app):
         if form.is_valid():
             nick = form.cleaned_data.get("nick")
             password = form.cleaned_data.get("password")
-            user = LocalUser.get_by_key_name(nick)
+            user = User.get_by_key_name(nick)
             # correct user
             if user and user.password == password:
                 app.session["user"] = user
@@ -39,7 +39,7 @@ def registration(app):
         if form.is_valid():
             # check user nick name duplicates
             nick = form.cleaned_data.get("nick")
-            if LocalUser.get_by_key_name(nick):
+            if User.get_by_key_name(nick):
                 form._errors["nick"] = form.error_class(["User with given nick name already registered"])
             else:
                 user = form.save()

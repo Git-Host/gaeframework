@@ -1,12 +1,12 @@
 from gae import forms
-from apps.user.models import LocalUser
+from apps.user.models import User
 
 class UserLoginForm(forms.ModelForm):
     '''Login form'''
     password = forms.CharField(widget=forms.PasswordInput)
     
     class Meta:
-        model  = LocalUser
+        model  = User
         fields = ['nick', 'password']
 
 class UserRegistrationForm(forms.ModelForm):
@@ -14,5 +14,5 @@ class UserRegistrationForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
-        model  = LocalUser
+        model  = User
         fields = ['nick', 'password']
