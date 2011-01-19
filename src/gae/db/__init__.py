@@ -164,6 +164,36 @@ class Model(Model):
         # return changed arguments
         return key_name
 
+class CachedModel(Model):
+    '''Base model with cached properties'''
+    MEMCACHE_LIFETIME = 3600 # in seconds
+
+    def __getattr__(self, name):
+        '''
+        Return cached property.
+
+        Usage: blog_entity.author__nick'''
+        memcache_key = "%s (%s): %s" % (self.__class__.__name__, self.key(), name)
+        # load field from memcache
+        field_value = memcache.get(memcache_key)
+        if not field_value:
+            try:
+                # get field value based on sequence of field names
+                field_value = self
+                for field in name.split('__'):
+                    field_value = getattr(field_value, field)
+                    # call method
+                    if callable(field_value):
+                        field_value = field_value()
+                # convert value to string
+                if isinstance(field_value, (Model, Property)):
+                    field_value = unicode(field_value)
+            except Exception:
+                raise AttributeError
+            # set field value to memcache
+            if not memcache.add(memcache_key, field_value, time=self.MEMCACHE_LIFETIME):
+                logging.error("Memcache set failed. CachedModel field %r" % name)
+        return field_value
 
 class Property(Property):
     __metaclass__ = monkey_patch
