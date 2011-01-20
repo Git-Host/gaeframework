@@ -120,12 +120,12 @@ class Model(Model):
     @classmethod
     def kind(cls):
         '''Return class name in format <AppnameClassname>'''
-        # get application name from path "apps/app_name/models"
+        # get application name from path "apps.app_name.models"
         app_name = cls.__module__.split('.')[1].title()
         # application name and model name have the same name like BlogBlog
         if app_name == cls.__name__:
             return cls.__name__
-        # add application name as prefix of class
+        # add application name as prefix of model
         return "%s%s" % (app_name, cls.__name__)
 
     def _generate_key(self):
@@ -173,7 +173,7 @@ class CachedModel(Model):
         Return cached property.
 
         Usage: blog_entity.author__nick'''
-        memcache_key = "%s (%s): %s" % (self.__class__.__name__, self.key(), name)
+        memcache_key = "%s (%s): %s" % (self.kind(), self.key(), name)
         # load field from memcache
         field_value = memcache.get(memcache_key)
         if not field_value:
