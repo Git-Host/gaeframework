@@ -1,12 +1,12 @@
+import logging, types
 from gae import template
-from django.template import TemplateSyntaxError, InvalidTemplateLibrary
+from django.template import TemplateSyntaxError, InvalidTemplateLibrary, VariableDoesNotExist
 from django.template.defaultfilters import stringfilter
 from django.template.defaulttags import LoadNode
 from django.template import get_library
 from django import template as django_template
 from gae.translation import translate as _
 from gae import webapp
-import types
 
 def node_rule(base_obj, rules):
     '''
@@ -85,7 +85,7 @@ class BaseNode(django_template.Node):
                 obj = getattr(self.object_type, 'get_by_id')(int(self.object_id))
             else:
                 obj = None
-        except AttributeError, django_template.VariableDoesNotExist:
+        except (AttributeError, VariableDoesNotExist), err:
             obj = None
         return obj
 
@@ -94,7 +94,8 @@ class BaseNode(django_template.Node):
         try:
             # restore object by variable name
             obj = django_template.resolve_variable(var_name, context)
-        except AttributeError, django_template.VariableDoesNotExist:
+        except (AttributeError, VariableDoesNotExist), err:
+            logging.warn("Template variable '%s' does not exists" % var_name)
             obj = None
         return obj
 
@@ -130,6 +131,9 @@ def filter_translate(text):
 def debug(content):
     return "Type: %s. Properties: %s" % (type(content), dir(content))
 
-@register.simple_tag
-def show_pages(paginator):
+@register.tag
+@node_rule(BaseNode, ('[paginator]',))
+def show_pages(self, context):
+    '''Return pagination links'''
+    paginator = self.get_var(context, self.paginator)
     return template.render('common/show_pages.html', {"paginator": paginator})
