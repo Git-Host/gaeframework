@@ -1,4 +1,5 @@
-import os
+import os, logging
+from google.appengine.api import memcache
 from google.appengine.ext.db import *
 
 def monkey_patch(name, bases, namespace):
@@ -11,6 +12,8 @@ def monkey_patch(name, bases, namespace):
 
 
 class Model(Model):
+    MEMCACHE_LIFETIME = 3600 # in seconds
+
     def __init__(self,
                parent=None,
                key_name=None,
@@ -163,10 +166,6 @@ class Model(Model):
                                         self.entity_type()
         # return changed arguments
         return key_name
-
-class CachedModel(Model):
-    '''Base model with cached properties'''
-    MEMCACHE_LIFETIME = 3600 # in seconds
 
     def __getattr__(self, name):
         '''
@@ -454,6 +453,6 @@ class SlugProperty(StringProperty):
     def validate(self, value):
         value = super(SlugProperty, self).validate(value)
         value = value.lower()
-        if not re.match("^[a-z][a-z0-9._-]*$", value):
-            raise BadValueError('Value %s should contain only letters, numbers, dots, underscore and minus sign' % self.name)
+        if not re.match("^[\w._-]+$", value, flags=re.UNICODE):
+            raise BadValueError('Value %r should contain only letters, numbers, dots, underscore and minus sign' % self.name)
         return value
