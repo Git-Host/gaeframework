@@ -16,7 +16,7 @@ def load_config(app_name, model_name):
     return getattr(module, model_name)()
 
 @login_required('admin')
-def apps_list(app, template="admin/apps_list"):
+def apps_list(app):
     '''
     Show list of applications with enabled administrative interface and all models in each application.
     '''
@@ -33,12 +33,12 @@ def apps_list(app, template="admin/apps_list"):
             config = load_config(app_name, model_name)
             models[index] = (model_name, hasattr(config, "name") and config.name or model_name)
         apps_models.append((app_name, models))
-    return app.render(template, {
+    return app.render("admin/apps_list", {
         'apps': apps_models,
         })
 
 @login_required('admin')
-def models_list(app, app_name, template=None):
+def models_list(app, app_name):
     '''
     Show list of objects in specified application.
     '''
@@ -49,24 +49,23 @@ def models_list(app, app_name, template=None):
         # load model
         config = load_config(app_name, model_name)
         models[index] = (model_name, hasattr(config, "name") and config.name or model_name)
-    return app.render(template or 'admin/models_list', {
+    return app.render('admin/models_list', {
         'managed_app': app_name,
         'models': models,
         })
 
 @login_required('admin')
-def model_records(app, app_name, model_name, on_page=10, page=1, template=None):
+def model_records(app, app_name, model_name):
     '''
     Show list of records in model.
 
     Args:
       obj - type of objects for list
-      on_page - items per page
     Return:
       items_pages - count of all pages
       items - articles list on current page
     '''
-    offset = (page - 1) * on_page
+#    offset = (page - 1) * on_page
     # load model
     config = load_config(app_name, model_name)
     model = config.model
@@ -80,7 +79,7 @@ def model_records(app, app_name, model_name, on_page=10, page=1, template=None):
 #        data = [{'name': field['name'], 'type': getattr(model, field['name']).__class__.__name__[0:-8], 'value': getattr(item, field['name'])} for field in records[0] if field['name'] != 'id']
 #        data.insert(0, {'name': 'id', 'type': 'Boolean', 'value': getattr(item, "key")().id()})
 #        records.append(data)
-    return app.render(template or 'admin/model_records', {
+    return app.render('admin/model_records', {
         'managed_app': app_name,
         'model': model_name,
         'model_name': hasattr(config, "name") and config.name or model_name,
@@ -89,7 +88,7 @@ def model_records(app, app_name, model_name, on_page=10, page=1, template=None):
         })
 
 @login_required('admin')
-def create_record(app, app_name, model_name, template=None):
+def create_record(app, app_name, model_name):
     # load model
     config = load_config(app_name, model_name)
     model = config.model
@@ -118,7 +117,7 @@ def create_record(app, app_name, model_name, template=None):
     else:
         form = NewForm()
     # render page
-    return app.render(template or 'admin/create_record', {
+    return app.render('admin/create_record', {
         'managed_app': app_name,
         'model': model_name,
         'model_name': hasattr(config, "name") and config.name or model_name,
@@ -127,13 +126,12 @@ def create_record(app, app_name, model_name, template=None):
         })
 
 @login_required('admin')
-def edit_record(app, app_name, model_name, record_id, template=None):
-    record_id = int(record_id)
+def edit_record(app, app_name, model_name, record_key):
     # load model
     config = load_config(app_name, model_name)
     model = config.model
     # get record object
-    record = model.get_by_id(record_id)
+    record = model.get(record_key)
     # record not found
     if record is None:
         return app.error(404)
@@ -169,22 +167,23 @@ def edit_record(app, app_name, model_name, record_id, template=None):
     else:
         form = NewForm(instance=record)
     # render page
-    return app.render(template or 'admin/edit_record', {
+    return app.render('admin/edit_record', {
         'managed_app': app_name,
         'model': model_name,
         'model_name': hasattr(config, "name") and config.name or model_name,
-        'record_id': record_id,
+        'record': record,
         'references': references,
         'form': form,
         })
 
 @login_required('admin')
-def delete_record(app, app_name, model_name, record_id=None, template=None):
-    # get records id from POST request
-    if record_id is None:
-        record_ids = app.request.get_all("record_id")
+def delete_record(app, app_name, model_name, record_key=None):
+    if record_key is None:
+        # get records id from POST request
+        record_keys = app.request.get_all("record_key")
     else:
-        record_ids = list(record_id)
+        # use one record key passed to query string
+        record_keys = list(record_key)
     try:
         # load model and get record from this model
         config = load_config(app_name, model_name)
@@ -192,8 +191,8 @@ def delete_record(app, app_name, model_name, record_id=None, template=None):
     except (AttributeError):
         record = None
     # delete each specified record
-    for record_id in record_ids:
-        record = model.get_by_id(int(record_id))
+    for record_key in record_keys:
+        record = model.get(record_key)
         if record is not None:
             if hasattr(config, "before_delete"):
                 config.before_delete()

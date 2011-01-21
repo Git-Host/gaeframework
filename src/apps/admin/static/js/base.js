@@ -3,8 +3,8 @@ $(document).ready(function(){
   var first_column = $('tr td:nth-child(1), tr th:nth-child(1)');
 
   // select all records for delete his
-  $("#form_select_all").live("change", function(){
-	$("input[type=checkbox].form_delete_records").attr("checked", $(this).attr("checked"));
+  $("#admin_model_records th input[type=checkbox]:first").live("change", function(){
+    $("#admin_model_records td input[type=checkbox]").attr("checked", $(this).attr("checked"));
   });
 
   // enable/disable edit form data

@@ -1,4 +1,5 @@
 {% extends 'admin.html' %}
+{% load admin %}
 
 {% block title %}List of records in model {{ app|capfirst }}.{{ model|capfirst }}{% endblock %}
 
@@ -15,70 +16,56 @@
     <a href="/{{ app }}/{{ managed_app }}/{{ model }}/new" class="button">New record</a>
     <input type="submit" name="delete" value="Delete" class="confirm disabled" title="Delete selected records" disabled="disabled" />
     <input type="submit" name="save" value="Save" class="confirm disabled" title="Save changes" disabled="disabled" />
-    <input type="checkbox" id="form_edit"/>
-    <label for="form_edit">edit</label>
     <table>
       <tr>
-      {% for field in fields %}
-        {% if forloop.first %}
-        <th width="20px;" class="hide">
-          <input type="checkbox" title="Select all records" id="form_select_all" />
+        <th width="20px;" class="center">
+          <input type="checkbox" title="Select all records" />
         </th>
-        {% endif %}
-        <th>{{ field.name|capfirst }}</th>
-      {% endfor %}
+        {% for field in fields %}
+          <th>{{ field.name|capfirst }}</th>
+        {% endfor %}
+        <th width="80px;">
+          {% translate "Actions" %}
+        </th>
       </tr>
       {% for record in records %}
         <tr class="horizontal">
-          {# HEADER #}
-          {% if forloop.first %}
-            {% for field in record %}
-              {% if forloop.first %}
-                <th width="30px;">
-                  <input type="checkbox" title="Select all records" id="form_select_all" />
-                </th>
-              {% else %}
-                <th title="Type is {{ field.type }}">
-                  {{ field.name|capfirst }}
-                </th>
+          <td>
+            <input type="checkbox" title="Select record" value="{{ record.key }}" />
+          </td>
+          {% for field in fields %}
+            {% get_attr record field.name as "record_field" %}
+            {# SHOW FIELD VALUE #}
+            <td class="{% if field.type == "Boolean" %}center{% endif %}">
+              {% if field.type == "Boolean" %}
+                <input type="checkbox" name="{{ record_field.name }}" value="{{ record_field }}" {% if record_field %}checked="checked"{% endif %} />
               {% endif %}
-            {% endfor %}
-            <th>
-              &nbsp;
-            </th>
-          {% else %}
-            {% for field in record %}
-              {# SHOW FIELD VALUE #}
-              <td>
-                {% if field.type == "Boolean" %}
-                  {% if forloop.first %}
-                    <input type="checkbox" name="delete_records" value="{{ field.value }}" class="form_delete_records"/>
-                  {% else %}
-                    <input type="checkbox" name="{{ field.name }}" value="{{ field.value }}" {% if field.value %}checked="checked"{% endif %} />
-                  {% endif %}
-                {% endif %}
-                {% if field.type == "String" %}
-                  {{ field.value }}
-                {% endif %}
-                {% if field.type == "User" %}
-                  {{ field.value }}
-                {% endif %}
-              </td>
-            {% endfor %}
-            <td>
-              <a href="/{{ app }}/{{ managed_app }}/{{ model }}/edit/{{ record.0.value }}" class="button mini">Edit</a>
-              <a href="/{{ app }}/{{ managed_app }}/{{ model }}/delete/{{ record.0.value }}" class="button mini confirm">Delete</a>
+              {% if field.type == "String" or field.type == "Slug" %}
+                {{ record_field }}
+              {% endif %}
+              {% if field.type == "User" %}
+                {{ record_field }}
+              {% endif %}
             </td>
-          {% endif %}
+          {% endfor %}
+          <td class="actions">
+            <a href="/{{ app }}/{{ managed_app }}/{{ model }}/edit/{{ record.key }}" class="button mini">Edit</a>
+            <a href="/{{ app }}/{{ managed_app }}/{{ model }}/delete/{{ record.key }}" class="button mini confirm">Delete</a>
+          </td>
+        </tr>
+        <tr>
+          <th>&nbsp;</th>
+          <th class="center" colspan="{{fields|length}}">
+            {% show_pages records %}
+          </th>
+          <th>&nbsp;</th>
         </tr>
       {% empty %}
         <tr>
-          <td class="hide">&nbsp;</td>
+          <td>&nbsp;</td>
           <td class="center" colspan="{{fields|length}}">{% translate "No entities found" %}</td>
         </tr>
       {% endfor %}
     </table>
   </form>
-
-  {% show_pages records %}
 {% endblock %}
