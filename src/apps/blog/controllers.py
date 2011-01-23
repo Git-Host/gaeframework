@@ -98,7 +98,9 @@ def entity_details(app, blog, entity):
     blog_obj = get_object_or_404(Blog, blog)
     entity_obj = get_object_or_404(Entity, "%s/%s" % (blog_obj.key().name(), entity))
     # render page
-    return app.render('blog/entity_details', {'entity': entity_obj})
+    return app.render('blog/entity_details', {
+                      'blog': blog_obj,
+                      'entity': entity_obj})
 
 @login_required()
 def entity_create(app, blog):
