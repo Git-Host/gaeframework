@@ -14,112 +14,6 @@ def monkey_patch(name, bases, namespace):
 class Model(Model):
     MEMCACHE_LIFETIME = 3600 # in seconds
 
-    def __init__(self,
-               parent=None,
-               key_name=None,
-               _app=None,
-               _from_entity=False,
-               **kwds):
-        namespace = None
-        if isinstance(_app, tuple):
-            if len(_app) != 2:
-                raise BadArgumentError('_app must have 2 values if type is tuple.')
-            _app, namespace = _app
-        key = kwds.get('key', None)
-        if key is not None:
-            if isinstance(key, (tuple, list)):
-                key = Key.from_path(*key)
-            if isinstance(key, basestring):
-                key = Key(encoded=key)
-            if not isinstance(key, Key):
-                raise TypeError('Expected Key type; received %s (is %s)' %
-                                (key, key.__class__.__name__))
-            if not key.has_id_or_name():
-                raise BadKeyError('Key must have an id or name')
-            if key.kind() != self.kind():
-                raise BadKeyError('Expected Key kind to be %s; received %s' %
-                                  (self.kind(), key.kind()))
-            if _app is not None and key.app() != _app:
-                raise BadKeyError('Expected Key app to be %s; received %s' %
-                                  (_app, key.app()))
-            if namespace is not None and key.namespace() != namespace:
-                raise BadKeyError('Expected Key namespace to be %s; received %s' %
-                                  (namespace, key.namespace()))
-            if key_name and key_name != key.name():
-                raise BadArgumentError('Cannot use key and key_name at the same time'
-                                       ' with different values')
-            if parent and parent != key.parent():
-                raise BadArgumentError('Cannot use key and parent at the same time'
-                                       ' with different values')
-            namespace = key.namespace()
-            self._key = key
-            self._key_name = None
-            self._parent = None
-            self._parent_key = None
-        else:
-            if key_name == '':
-                raise BadKeyError('Name cannot be empty.')
-            elif key_name is not None and not isinstance(key_name, basestring):
-                raise BadKeyError('Name must be string type, not %s' %
-                                  key_name.__class__.__name__)
-            
-            if parent is not None:
-                if not isinstance(parent, (Model, Key)):
-                    raise TypeError('Expected Model type; received %s (is %s)' %
-                                    (parent, parent.__class__.__name__))
-                if isinstance(parent, Model) and not parent.has_key():
-                    raise BadValueError(
-                        "%s instance must have a complete key before it can be used as a "
-                        "parent." % parent.kind())
-                if isinstance(parent, Key):
-                    self._parent_key = parent
-                    self._parent = None
-                else:
-                    self._parent_key = parent.key()
-                    self._parent = parent
-            else:
-                self._parent_key = None
-                self._parent = None
-            self._key_name = key_name
-            self._key = None
-        
-        if self._parent_key is not None:
-            if namespace is not None and self._parent_key.namespace() != namespace:
-                raise BadArgumentError(
-                    'Expected parent namespace to be %r; received %r' %
-                    (namespace, self._parent_key.namespace()))
-            namespace = self._parent_key.namespace()
-        
-        self._entity = None
-        if _app is not None and isinstance(_app, Key):
-            raise BadArgumentError('_app should be a string; received Key(\'%s\'):\n'
-                                   '  This may be the result of passing \'key\' as '
-                                   'a positional parameter in SDK 1.2.6.  Please '
-                                   'only pass \'key\' as a keyword parameter.' % _app)
-        if namespace is None:
-            namespace = namespace_manager.get_namespace()
-    
-        self._app = _app
-        self.__namespace = namespace
-    
-        for prop in self.properties().values():
-            if prop.name in kwds:
-                value = kwds[prop.name]
-            else:
-                value = prop.default_value()
-            if value is None:
-                continue
-            try:
-                prop.__set__(self, value)
-            except DerivedPropertyError, e:
-                if prop.name in kwds and not _from_entity:
-                    raise
-
-    def put(self, **kwargs):
-        if not self.is_saved():
-            self._key_name = self._generate_key()
-        super(Model, self).put(**kwargs)
-
     @classmethod
     def kind(cls):
         '''Return class name in format <AppnameClassname>'''
@@ -130,6 +24,12 @@ class Model(Model):
             return cls.__name__
         # add application name as prefix of model
         return "%s%s" % (app_name, cls.__name__)
+
+    def put(self, **kwargs):
+#        if not self.is_saved():
+#            self._key_name = self._generate_key()
+        self._key_name = self._generate_key()
+        super(Model, self).put(**kwargs)
 
     def _generate_key(self):
         """A Model for entities which automatically generate their own key names
@@ -172,6 +72,11 @@ class Model(Model):
         Return cached property.
 
         Usage: blog_entity.author__nick'''
+        try:
+            # check parent class virtual property
+            return super(Model, self).__getattr__(name)
+        except AttributeError:
+            pass
         memcache_key = "%s (%s): %s" % (self.kind(), self.key(), name)
         # load field from memcache
         field_value = memcache.get(memcache_key)
