@@ -112,15 +112,18 @@ class RequestHandler(webapp.RequestHandler):
             # show 500 page if error not specified
             if self.status_code is None:
                 self.error(500)
-        # render error message page i debug mode only
+        # show error page for user
         if not self.debug:
+            if self.status_code is not None and int(self.status_code) != 200:
+                return self.render(str(self.status_code))
             return None
+        # show detailed error traceback
         try:
             errors = {"request": self.request,
+                      "status_code": self.status_code,
                       "traceback": traceback.format_exc()}
             # render page with status code on errors
-            if self.status_code is not None and int(self.status_code) != 200:
-                return self.render(str(self.status_code), errors)
+            return self.render("debug", errors)
         except TypeError, e:
             logging.warning("Template '%s' not found" % e)
         except (TypeError, Exception), e:
@@ -156,7 +159,7 @@ class RequestHandler(webapp.RequestHandler):
         # load urls map (only once)
         if not RequestHandler.urls:
             # load global urls mapping
-            for rule in get_config('urls', []):
+            for rule in get_config('site.urls', []):
                 if "url" not in rule:
                     raise Exception, "Not defined 'url' option in the global urls mapping"
                 # specified request handler
@@ -166,7 +169,7 @@ class RequestHandler(webapp.RequestHandler):
                 # urls mapping to specified application
                 elif "map" in rule:
                     app_name = rule["map"]
-                    for app_rule in get_config('apps.%s.urls' % app_name, {}):
+                    for app_rule in get_config('%s.urls' % app_name, {}):
                         if "url" not in app_rule:
                             raise Exception, "Not defined 'url' option in the urls mapping for application '%s'" % app_name
                         if "run" not in app_rule:

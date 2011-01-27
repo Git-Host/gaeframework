@@ -35,7 +35,7 @@ def login_required(*roles):
             if not roles:
                 return handler_method(self, *args, **kwargs)
             # predefined users in project config.yaml file
-            if user.nick in get_config('apps.user.admins', []):
+            if user.nick in get_config('user.admins', []):
                 return handler_method(self, *args, **kwargs)
             # check role
             for role in roles:

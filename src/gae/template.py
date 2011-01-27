@@ -41,9 +41,9 @@ def load(path, debug=False):
         project_dir = sys.modules['gae.webapp'].App.project_dir
         directory, file_name = os.path.split(template_path)
         new_settings = {
-            'TEMPLATE_DIRS': (os.path.join(project_dir, 'templates', app_name, directory),
+            'TEMPLATE_DIRS': (os.path.join(project_dir, 'apps', 'site', 'templates', app_name, directory),
                               os.path.join(project_dir, 'apps', app_name, 'templates', directory),
-                              os.path.join(project_dir, 'templates', directory)),
+                              os.path.join(project_dir, 'apps', 'site', 'templates', directory)),
             'TEMPLATE_DEBUG': debug,
             'DEBUG': debug,
             }

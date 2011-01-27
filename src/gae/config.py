@@ -4,31 +4,29 @@ Work with project and application configuration files.
 Usage:
     from gae.config import get_config
     config = get_config()
-    admins = config.get("apps.user.admins", default_value=[])
+    admins = config.get("user.admins", default_value=[])
     # short form
-    admins = get_config("apps.user.admins", default_value=[])
+    admins = get_config("user.admins", default_value=[])
+    language = get_config("site.language", "en")
 '''
 import os, yaml, sys, copy
 
 __all__ = ["get_config"]
 
 class Config:
-    _project_config = None
+    _already_loaded = False
     _apps_configs = {}
 
     def __init__(self):
         # load project and all application configurations only once
-        if Config._project_config is not None:
+        if Config._already_loaded:
             raise Exception, "For access to configuration please use get_config() function"
-        # get project information
-        App = sys.modules['gae.webapp'].App
-        project_dir = os.path.join(App.project_dir, 'apps')
-        apps = App.apps_list()
+        Config._already_loaded = True
+        # get list of all applications
+        apps = sys.modules['gae.webapp'].App.apps_list()
         # get list of configuration files
         apps_configs = [(app_name, os.path.join(app_path, "config.yaml")) for app_name, app_path in apps.items()]
-        project_config = os.path.join(project_dir, "config.yaml")
         # load configuration files
-        Config._project_config = self._load_config(project_config)
         for app_name, app_config in apps_configs:
             Config._apps_configs[app_name] = self._load_config(app_config)
 
@@ -43,27 +41,27 @@ class Config:
 
     def get(self, path, default_value=None):
         '''Return configuration by given options path.
-            1. look in file "apps/config.yaml" and if not found than
-            2. look in file "apps/app_name/config.yaml"
-            3. return default_value if not found given option
+            1. look in file "apps/site/config.yaml" in section "apps"
+            2. else, look in file "apps/[app_name]/config.yaml"
+            3. else, return default_value 
 
         Usage:
-            settings.get("apps.user.admins")
-            settings.get("language", "default_value")
+            settings.get("user.admins")
+            settings.get("site.language", "default_value")
 
-        TODO: add support for dictionary lookup: settings["apps.user.admins"]
+        TODO: add support for dictionary lookup: settings["user.admins"]
+        TODO: if we pass only app_name than returned empty dictionary instead of None
         '''
-        # search in project configuration file
-        config = self._project_config
-        for piece in path.split('.'):
+        app_name, app_path = path.split('.', 1)
+        # search in site application
+        config = self._apps_configs.get("site.apps", {})
+        for piece in app_path.split('.'):
             config = config.get(piece)
             if config is None: break
-        # search in application configuration file
-        if config is None and path.startswith("apps."):
-            # use path after "apps.app_name"
-            app_name, path = path.split('.', 2)[1:]
+        # search in specified application
+        if config is None:
             config = self._apps_configs.get(app_name, {})
-            for piece in path.split('.'):
+            for piece in app_path.split('.'):
                 config = config.get(piece)
                 if config is None: break
         return copy.deepcopy(config) if config is not None else default_value

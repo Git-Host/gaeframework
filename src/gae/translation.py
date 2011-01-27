@@ -1,7 +1,7 @@
 import yaml, logging, sys
 from gae.config import get_config
 
-__all__ = ["translate", "get_language", "get_available_languages", "set_language"]
+__all__ = ["translate", "_", "get_language", "get_available_languages", "set_language"]
 
 _language = None
 
@@ -10,12 +10,12 @@ def get_language():
     global _language
     # language is not defined - load from config
     if not _language:
-        _language = get_config('language', 'en')
+        _language = get_config('site.language', 'en')
     return _language
 
 def get_available_languages():
     '''Return list of available site translations'''
-    return get_config("languages", [])
+    return get_config("site.languages", [])
 
 def set_language(language):
     '''Activate current language'''
@@ -55,13 +55,13 @@ class LazyTranslate:
         # translate message in specified application
         if message in LazyTranslate._translations[language][app_name]:
             return LazyTranslate._translations[language][app_name][message]
-        # load global translation
-        if "_" not in LazyTranslate._translations[language]:
-            file = "translate/%s.yaml" % (language)
-            LazyTranslate._translations[language]["_"] = LazyTranslate.load_translation(file)
+        # load global site translation
+        if "site" not in LazyTranslate._translations[language]:
+            file = "apps/%s/translate/%s.yaml" % ("site", language)
+            LazyTranslate._translations[language]["site"] = LazyTranslate.load_translation(file)
         # translate message with global translation
-        if message in LazyTranslate._translations[language]["_"]:
-            return LazyTranslate._translations[language]["_"][message]
+        if message in LazyTranslate._translations[language]["site"]:
+            return LazyTranslate._translations[language]["site"][message]
         # translation not found - return original English message
         return message
 

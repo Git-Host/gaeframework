@@ -13,3 +13,6 @@ urls:
 
 - url: :user
   run: user_profile
+
+# application specific configuration
+admins: [admin]

@@ -31,3 +31,6 @@ urls:
 
 - url: :blog/:entity
   run: entity_details
+
+# application specific configuration
+comments: True
