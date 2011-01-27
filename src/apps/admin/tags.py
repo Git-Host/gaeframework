@@ -10,6 +10,8 @@ def get_attr(self, context):
     obj  = self.get_var(context, self.obj)
     attr = self.get_var(context, self.attr)
     value = getattr(obj, attr)
+    if callable(value):
+        value = value()
     if hasattr(self, "varname"):
         varname = self.get_var(context, self.varname)
         context[varname] = value

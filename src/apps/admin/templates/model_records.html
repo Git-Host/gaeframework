@@ -39,11 +39,7 @@
             <td class="{% if field.type == "Boolean" %}center{% endif %}">
               {% if field.type == "Boolean" %}
                 <input type="checkbox" name="{{ record_field.name }}" value="{{ record_field }}" {% if record_field %}checked="checked"{% endif %} />
-              {% endif %}
-              {% if field.type == "String" or field.type == "Slug" %}
-                {{ record_field }}
-              {% endif %}
-              {% if field.type == "User" %}
+              {% else %}
                 {{ record_field }}
               {% endif %}
             </td>
@@ -53,19 +49,20 @@
             <a href="/{{ app }}/{{ managed_app }}/{{ model }}/delete/{{ record.key }}" class="button mini confirm">Delete</a>
           </td>
         </tr>
-        <tr>
-          <th>&nbsp;</th>
-          <th class="center" colspan="{{fields|length}}">
-            {% show_pages records %}
-          </th>
-          <th>&nbsp;</th>
-        </tr>
       {% empty %}
         <tr>
           <td>&nbsp;</td>
           <td class="center" colspan="{{fields|length}}">{% translate "No entities found" %}</td>
+          <td>&nbsp;</td>
         </tr>
       {% endfor %}
+      <tr>
+        <th>&nbsp;</th>
+        <th class="center" colspan="{{fields|length}}">
+          {% show_pages records %}
+        </th>
+        <th>&nbsp;</th>
+      </tr>
     </table>
   </form>
 {% endblock %}
