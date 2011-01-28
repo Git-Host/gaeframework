@@ -140,46 +140,40 @@ table th {
 }
 
 
+/* Menu */
+#menu {
+  width: 950px;
+  margin: 20px auto 0px auto;
+  clear: both;
+  height: 20px;
+}
+#menu>* {
+  vertical-align: middle;
+}
+#menu>A {
+  margin-left: 2px;
+  padding: 2px 3px;
+}
+#menu>A:HOVER {
+  background-color: white;
+}
+#menu>.login {
+  float: right;
+  margin: 3px;
+}
+
 /* Page */
 #page {
   width: 950px;
   border: solid 10px #ddd;
   background-color: white;
-  margin: 30px auto 10px auto;
+  margin: 0px auto 10px auto;
 }
 
 /* Page header */
 #page .header {
   background-color: #e6e6e6;
   padding: 5px 10px;
-}
-#page .header>.subheader {
-  background-color: #ccc;
-  margin: 5px -10px;
-  padding: 5px 10px;
-}
-#page .header>.subheader>form {
-  margin: 0;
-  margin-right: 20px;
-  padding: 0;
-  border-width: 0;
-  background-color: inherit;
-  display: inline;
-}
-#page .header>.subheader>* {
-  vertical-align: middle;
-}
-#page .header>.subheader>.login {
-  float: right;
-  margin: 3px;
-}
-#page .header>.subheader>form>input.search {
-  width: 155px;
-  height: 20px;
-  border: solid 1px #888;
-  color: #888;
-  font-weight: bold;
-  padding: 0 3px;
 }
 #page .header .logo {
   width: 150px;

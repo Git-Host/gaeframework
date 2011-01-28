@@ -12,6 +12,22 @@
 </head>
 <body>
 
+    
+<div id="menu">
+  <p class="login">
+    {% if user %}
+      Hello <b>{{ user }}</b>! <a href="/user/logout">Logout</a>
+    {% else %}
+      <a href="/user/login">Login</a> to site
+    {% endif %}
+  </p>
+  <b>Try applications:</b>
+  <a href="/admin">Admin</a>
+  <a href="/blog">Blog</a>
+  <a href="/guestbook">Guest book</a>
+  <a href="/todo">Todo</a>
+</div>
+
 <div id="page">
   <div class="header">
     <table>
@@ -28,25 +44,6 @@
         <td>&nbsp;</td>
       </tr>
     </table>
-    
-    <div class="subheader">
-      <form action="/" method="get">
-        <input type="text" name="search" class="search" value="Search">
-      </form>
-      {% show_banner adsense_468x15 %}
-      <p class="login">
-      {% if user %}
-        Hello <b>{{ user }}</b>! <a href="/user/logout">Logout</a>
-      {% else %}
-        <a href="/user/login">Login</a> to site
-      {% endif %}
-      </p>
-    </div>
-    Applications: 
-    <a href="/admin">Admin</a>,
-    <a href="/blog">Blog</a>,
-    <a href="/guestbook">Guest book</a>,
-    <a href="/todo">Todo</a>
   </div>
 
   <div class="sidebar">
@@ -61,7 +58,7 @@
 </div>
 
 <div id="footer">
-  <b>Follow us</b> on
+  <b>Follow us on:</b>
   <a href="http://www.facebook.com/group.php?gid=395531586756">Facebook</a>
   <a href="http://twitter.com/gaeframework">Twitter</a>
   <a href="http://www.youtube.com/user/GAEframework">YouTube</a>
