@@ -1,5 +1,5 @@
 <form method="POST" action="/user/login" class="user login">
-  <input type="hidden" name="back_url"  value="{% if app == "user" %}{% back_url %}{% else %}{% current_url %}{% endif %}"/>
+  <input type="hidden" name="back_url"  value="{% if app == "user" %}{% back_url %}{% else %}{% current_url %}{% endif %}">
 
   {{ form.nick.errors }}
   <p class="nick">

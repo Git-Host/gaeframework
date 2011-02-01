@@ -36,7 +36,7 @@
     {% get_recent_blogs as recent_blogs %}
     <p>
     {% for recent_blog in recent_blogs %}
-      <a href="/{{ app }}/{{ recent_blog.details_url }}">{{ recent_blog.name }}</a><br/>
+      <a href="/{{ app }}/{{ recent_blog.details_url }}">{{ recent_blog.name }}</a><br>
     {% endfor %}
     </p>
     <p class="last">
