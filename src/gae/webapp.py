@@ -109,7 +109,7 @@ class RequestHandler(webapp.RequestHandler):
         for frame in stack:
             vars = []
             for key, value in frame.f_locals.items():
-                if key.startswith("__"): continue # not show special vabiables
+                if key.startswith("__"): continue # not show special variables
                 #We have to be careful not to cause a new error in our error
                 #printer! Calling str() on an unknown object could cause an
                 #error we don't want.
@@ -152,7 +152,7 @@ class RequestHandler(webapp.RequestHandler):
         # show detailed error traceback
         try:
             errors = {"request": self.request,
-                      "error": sys.exc_info()[1],
+                      "error": "%s: %s" % (sys.exc_info()[0].__name__, sys.exc_info()[1]),
                       "status_code": self.status_code,
                       "traceback": self._traceback_info()}
             # render page with status code on errors
