@@ -152,6 +152,7 @@ class RequestHandler(webapp.RequestHandler):
         # show detailed error traceback
         try:
             errors = {"request": self.request,
+                      "error": sys.exc_info()[1],
                       "status_code": self.status_code,
                       "traceback": self._traceback_info()}
             # render page with status code on errors
