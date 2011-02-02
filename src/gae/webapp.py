@@ -91,6 +91,38 @@ class RequestHandler(webapp.RequestHandler):
         global instance
         instance = self
 
+    def _traceback_info(self):
+        """
+        Print the usual traceback information, followed by a listing of all the
+        local variables in each frame.
+        """
+        tb = sys.exc_info()[2]
+        while 1:
+            if not tb.tb_next: break
+            tb = tb.tb_next
+        stack = []
+        f = tb.tb_frame
+        while f:
+            stack.append(f)
+            f = f.f_back
+        frames = []
+        for frame in stack:
+            vars = []
+            for key, value in frame.f_locals.items():
+                if key.startswith("__"): continue # not show special vabiables
+                #We have to be careful not to cause a new error in our error
+                #printer! Calling str() on an unknown object could cause an
+                #error we don't want.
+                try:
+                    var_repr = repr(value)
+                    var_value = unicode(value)
+                    vars.append((key, var_repr, var_value if value != var_value and var_value != var_repr else None))
+                except:
+                    pass
+            frame_info = {"func": frame.f_code.co_name, "file": frame.f_code.co_filename, "line": frame.f_lineno}
+            frames.append((frame_info, vars))
+        return frames
+
     def load_app(self, app_name='index', app_view='index', params={}):
         '''Load application'''
         self.app_name = app_name
@@ -121,7 +153,7 @@ class RequestHandler(webapp.RequestHandler):
         try:
             errors = {"request": self.request,
                       "status_code": self.status_code,
-                      "traceback": traceback.format_exc()}
+                      "traceback": self._traceback_info()}
             # render page with status code on errors
             return self.render("debug", errors)
         except TypeError, e:
@@ -131,12 +163,19 @@ class RequestHandler(webapp.RequestHandler):
         # print raw traceback (without insert to 500 template)
         errors_html = ""
         for error_name, error_details in errors.items():
+            if type(error_details) in (tuple, dict, list):
+                errors = []
+                for frame, vars in error_details:
+                    errors.append("%s\n%s" % (
+                                  "%s (line %s) in %s" % (frame['func'], frame['line'], frame['file']),
+                                  "\n".join(["  %s = %s" % (var_name, var_repr) for var_name, var_repr, var_value in vars])))
+                error_details = "\n".join(errors)
             errors_html += "<div class='%(error_name)s'>"\
                 "<h2>%(error_name)s</h2>"\
                 "<pre>%(error_details)s</pre>"\
                 "</div>" % {
                     "error_name": error_name.title(),
-                    "error_details": type(error_details) in (tuple, dict, list) and "\n".join(error_details) or error_details}
+                    "error_details": error_details}
         # return error page
         return "<html><body>%s</html></body>" % errors_html
 
