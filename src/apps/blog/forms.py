@@ -35,7 +35,7 @@ class EntityCreateForm(forms.ModelForm):
     def clean_slug(self):
         '''Prevent duplicate entities with equal key names'''
         # entity with given url address already exists
-        entity_key = "%s/%s" % (self.instance.blog.key().name(), self.cleaned_data['slug'])
+        entity_key = "%s/%s" % (self.cleaned_data['blog'].key().name(), self.cleaned_data['slug'])
         if self.Meta.model.get_by_key_name(entity_key):
             raise forms.ValidationError("Blog entity with url '%s' already exists" %
                                          self.cleaned_data['slug'])
