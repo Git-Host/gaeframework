@@ -4,7 +4,7 @@
 {% block title %}{{ entity.title }}{% endblock %}
 
 {% block content %}
-  <h1><a href="">{{ blog.name }}</a> &rarr; {{ entity.title }}</h1>
+  <h1><a href="/{{app}}/{{blog.details_url}}">{{ blog.name }}</a> &rarr; {{ entity.title }}</h1>
 
   <div class="blog entity">
     {% if entity.description %}<blockquote>{{ entity.description|default:""|escape }}</blockquote>{% endif %}

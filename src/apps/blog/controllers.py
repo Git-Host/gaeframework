@@ -106,8 +106,7 @@ def entity_details(app, blog, entity):
 def entity_create(app, blog):
     blog_obj = get_object_or_404(Blog, blog)
     if app.request.POST:
-        entity_obj = Entity(blog=blog_obj)
-        form = EntityCreateForm(data=app.request.POST, instance=entity_obj)
+        form = EntityCreateForm(data=app.request.POST, initial={'blog': blog_obj})
         # filled form
         if form.is_valid():
             form.save()
