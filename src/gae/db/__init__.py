@@ -77,6 +77,9 @@ class Model(Model):
             return super(Model, self).__getattr__(name)
         except AttributeError:
             pass
+        # try to load cached property
+        if "__" not in name:
+            raise AttributeError
         memcache_key = "%s (%s): %s" % (self.kind(), self.key(), name)
         # load field from memcache
         field_value = memcache.get(memcache_key)
