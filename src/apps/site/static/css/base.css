@@ -221,9 +221,9 @@ table th {
   margin-bottom: 10px;
 }
 #page>.sidebar>div>h3 {
-  padding: 0 5px;
-  margin: -5px -15px 5px -5px;
-  border-bottom: dotted 2px #ddd;
+  padding: 3px 5px;
+  margin: -5px -5px 5px -5px;
+  border-bottom: solid 1px #eee;
 }
 #page>.sidebar>div>h3>a {
   color: black;
