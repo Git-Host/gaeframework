@@ -1,36 +1,27 @@
 urls:
 - url:
-  run: entities_list
+  run: entries_list
+  tag: entries_list
 
-- url: all
-  run: blogs_list
+- url: tag/:tags
+  run: entries_list
+  tag: entries_list_tagged
 
 - url: new
-  run: blog_create
+  run: create_entry
+  tag: create_entry
 
-- url: :blog/edit
-  run: blog_edit
+- url: :entry/edit
+  run: edit_entry
+  tag: edit_entry
 
-- url: :blog/delete
-  run: blog_delete
+- url: :entry/delete
+  run: delete_entry
+  tag: delete_entry
 
-- url: :blog/new
-  run: entity_create
-
-- url: :blog/:entity/edit
-  run: entity_edit
-
-- url: :blog/:entity/delete
-  run: entity_delete
-
-- url: :blog
-  run: entities_list
-
-- url: :blog/tag/:tags
-  run: entities_list
-
-- url: :blog/:entity
-  run: entity_details
+- url: :entry
+  run: entry_details
+  tag: entry_details
 
 # application specific configuration
 comments: True

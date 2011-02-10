@@ -1,56 +1,33 @@
 from gae import forms
-from apps.blog.models import Blog, Entity
+from apps.blog.models import Entity, Tag
 
-class BlogCreateForm(forms.ModelForm):
+class EntityForm(forms.ModelForm):
+    tags = forms.CharField(max_length=40, min_length=2, required=False)
+
+    def clean_slug(self):
+        '''Prevent duplicate entries with equal key names'''
+        # entry with given url address already exists
+        entry_key = self.cleaned_data['slug']
+        if self.Meta.model.get_by_key_name(entry_key):
+            raise forms.ValidationError("Entity with url '%s' already exists" %
+                                         self.cleaned_data['slug'])
+        return self.cleaned_data['slug']
+
+    def clean_tags(self):
+        tags = self.cleaned_data.get('tags', "").strip(" ")
+        if tags:
+            tags = [tag.strip(" ") for tag in tags.split(",")]
+            return [tag for tag in tags if len(tag) > 2]
+        return []
+
+
+class EntityCreateForm(EntityForm):
     class Meta:
-        model   = Blog
+        model   = Entity
         exclude = ('author',)
 
-    def clean_slug(self):
-        '''Prevent duplicate blogs with equal key names'''
-        # blog with given url address already exists
-        if self.Meta.model.get_by_key_name(self.cleaned_data['slug']):
-            raise forms.ValidationError("Blog with url '%s' already exists" %
-                                         self.cleaned_data['slug'])
-        return self.cleaned_data['slug']
 
-class BlogEditForm(forms.ModelForm):
+class EntityEditForm(EntityForm):
     class Meta:
-        model   = Blog
+        model   = Entity
         exclude = ('author', 'slug')
-
-    def clean_slug(self):
-        '''Prevent duplicate blogs with equal key names'''
-        # blog with given url address already exists
-        if self.Meta.model.get_by_key_name(self.cleaned_data['slug']):
-            raise forms.ValidationError("Blog with url '%s' already exists" %
-                                         self.cleaned_data['slug'])
-        return self.cleaned_data['slug']
-
-class EntityCreateForm(forms.ModelForm):
-    class Meta:
-        model   = Entity
-        exclude = ['author', 'blog']
-
-    def clean_slug(self):
-        '''Prevent duplicate entities with equal key names'''
-        # entity with given url address already exists
-        entity_key = "%s/%s" % (self.initial['blog'].key().name(), self.cleaned_data['slug'])
-        if self.Meta.model.get_by_key_name(entity_key):
-            raise forms.ValidationError("Blog entity with url '%s' already exists" %
-                                         self.cleaned_data['slug'])
-        return self.cleaned_data['slug']
-
-class EntityEditForm(forms.ModelForm):
-    class Meta:
-        model   = Entity
-        exclude = ['author', 'blog', 'slug']
-
-    def clean_slug(self):
-        '''Prevent duplicate entities with equal key names'''
-        # entity with given url address already exists
-        entity_key = "%s/%s" % (self.instance.blog.key().name(), self.cleaned_data['slug'])
-        if self.Meta.model.get_by_key_name(entity_key):
-            raise forms.ValidationError("Blog entity with url '%s' already exists" %
-                                         self.cleaned_data['slug'])
-        return self.cleaned_data['slug']
