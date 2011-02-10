@@ -7,28 +7,28 @@ class Wiki:
     Using:
       Wiki().parse(raw_data)
     '''
-    rules = {
-            # link
-            r"((https?|ftp|nntp|news|mailto)://([a-zA-Z0-9_-]+[a-zA-Z0-9._-]*\.[a-zA-Z0-9_-]{2,4})([^ ]*))":
-                "<a href='\\1'>\\3</a>",
+    rules = (
+            # link: http://site.com/path/to/page.html
+            ("((https?|ftp|nntp|news|mailto)://([\w._-]+\.\w{2,4})([^ ]*))",
+             "<a href='\\1'>\\3</a>"),
             # email
-            r"([a-zA-Z0-9_-]+[a-zA-Z0-9._-]*\@([a-zA-Z0-9_-]+[a-zA-Z0-9._-]*\.[a-zA-Z0-9_-]{2,4}))":
-                "<a href='mailto:\\1'>\\1</a>",
+            ("([\w._-]+\@([\w._-]+\w{2,4}))",
+             "<a href='mailto:\\1'>\\1</a>"),
             # TODO: generate TOC (table of contents)
-            r"^\[TOC\ h([1-6])-h([2-6])]$":
-                "TOC - table of contents",
-            }
+            ("^\[TOC\ h([1-6])-h([2-6])]$",
+             "TOC - table of contents"),
+            )
 
     def __init__(self):
         self.in_p = False
         self.in_pre = False
         self.in_code = False
         self.result = []
+        # compile regular expressions
+        self.rules = [(re.compile(k, flags=re.UNICODE), v) for k, v in Wiki.rules]
 
     def parse(self, text):
-        '''
-        Parce wiki text and return html.
-        '''
+        '''Parce wiki text and return html'''
         lines = text.splitlines()
         self.result = []
         # transform wiki text to html
@@ -48,7 +48,7 @@ class Wiki:
 
     def parse_block(self, line):
         # separator
-        if re.match(r"^-{3,}$", line):
+        if re.match(r"^-{3,}$", line, flags=re.UNICODE):
             line = "<hr>"
         # header
         elif line.startswith("="):
@@ -74,7 +74,7 @@ class Wiki:
 
     def parse_line(self, line):
         # replace rules
-        for (key, value) in self.rules.items():
-            line = re.sub(key, value, line);
+        for key, value in self.rules:
+            line = re.sub(key, value, line)
         # return changed line
         return line
