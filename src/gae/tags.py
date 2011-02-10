@@ -1,4 +1,4 @@
-import logging, types
+import logging, types, re
 from gae import template
 from django.template import TemplateSyntaxError, InvalidTemplateLibrary, VariableDoesNotExist
 from django.template.defaultfilters import stringfilter
@@ -7,6 +7,7 @@ from django.template import get_library
 from django import template as django_template
 from gae.translation import translate as _
 from gae import webapp
+from gae.config import get_config
 
 def node_rule(base_obj, rules):
     '''
@@ -89,7 +90,8 @@ class BaseNode(django_template.Node):
             obj = None
         return obj
 
-    def get_var(self, context, var_name):
+    @staticmethod
+    def get_var(context, var_name):
         '''Return object based on parameter: object_instance or object_type and object_id'''
         try:
             # restore object by variable name
@@ -98,6 +100,50 @@ class BaseNode(django_template.Node):
             logging.warn("Template variable '%s' does not exists" % var_name)
             obj = None
         return obj
+
+
+class UrlNode(django_template.Node):
+    def __init__(self, params):
+        self.full_tag = "{%% tag %s %%}" % " ".join(params)
+        if len(params) == 0:
+            raise django_template.TemplateSyntaxError("You need pass arguments to 'url' template tag")
+        try:
+            self.app, self.tag = params[0].split('.')
+        except:
+            raise django_template.TemplateSyntaxError("You need pass first argument in format 'app_name.url_tag_name' for '%s'" % self.full_tag)
+        self.params = {}
+        if len(params) > 1:
+            try:
+                self.params = dict([param.split("=") for param in params[1:]])
+            except:
+                raise django_template.TemplateSyntaxError("You need pass arguments in format 'arg1=value1 arg2=value2' for '%s'" % self.full_tag)
+
+    def render(self, context):
+        # resolve variables
+        params = {}
+        for k, v in self.params.items():
+            params[k] = BaseNode.get_var(context, v)
+            if params[k] is None:
+                raise django_template.TemplateSyntaxError("Variable '%s' not defined for '%s'" % (v, self.full_tag))
+        # search in global urls mapping
+        for url in get_config("site.urls", []):
+            if url.get('map', "") == self.app:
+                url_prefix = url.get('url', "")
+                # search in mapped application
+                for url in get_config("%s.urls" % self.app, []):
+                    if url.get('tag', "") == self.tag:
+                        return "/%s%s" % (url_prefix, self._make_url(url.get('url') or "", params))
+        # mapped action not found
+        raise django_template.TemplateSyntaxError("Url not found for '%s'" % self.full_tag)
+
+    def _make_url(self, url, vars={}):
+        # convert url to style "%(blog)s/new"
+        url_with_placemarks = re.sub(":([^/]+)([/$])", "%(\\1)s\\2", url)
+        try:
+            # insert values from dictionary to string
+            return url_with_placemarks % vars
+        except KeyError:
+            raise django_template.TemplateSyntaxError("Not all required arguments passed to '%s'" % self.full_tag)
 
 
 register = template.create_template_register()
@@ -120,6 +166,14 @@ def translate(self, context):
     if hasattr(self, "app_name"):
         return _(text, self.app_name)
     return _(text)
+
+@register.tag
+def url(parser, token):
+    try:
+        params = token.split_contents()[1:]
+    except ValueError:
+        raise django_template.TemplateSyntaxError, "%r tag requires an arguments" % token.contents.split()[0]
+    return UrlNode(params)
 
 @register.filter(name='translate')
 @stringfilter
