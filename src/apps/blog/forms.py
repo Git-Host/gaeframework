@@ -2,7 +2,7 @@ from gae import forms
 from apps.blog.models import Entity, Tag
 
 class EntityForm(forms.ModelForm):
-    tags = forms.CharField(max_length=40, min_length=2, required=False)
+    tags = forms.CharField(max_length=100, min_length=3, required=False)
 
     def clean_slug(self):
         '''Prevent duplicate entries with equal key names'''
@@ -14,7 +14,7 @@ class EntityForm(forms.ModelForm):
         return self.cleaned_data['slug']
 
     def clean_tags(self):
-        tags = self.cleaned_data.get('tags', "").strip(" ")
+        tags = self.cleaned_data.get('tags', "").strip(" ").lower()
         if tags:
             tags = [tag.strip(" ") for tag in tags.split(",")]
             return [tag for tag in tags if len(tag) > 2]
