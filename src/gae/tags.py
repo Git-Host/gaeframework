@@ -1,12 +1,11 @@
 import logging, types, re
-from gae import template
+from gae import template, webapp, db
 from django.template import TemplateSyntaxError, InvalidTemplateLibrary, VariableDoesNotExist
 from django.template.defaultfilters import stringfilter
 from django.template.defaulttags import LoadNode
 from django.template import get_library
 from django import template as django_template
 from gae.translation import translate as _
-from gae import webapp
 from gae.config import get_config
 
 def node_rule(base_obj, rules):
@@ -125,6 +124,9 @@ class UrlNode(django_template.Node):
             params[k] = BaseNode.get_var(context, v)
             if params[k] is None:
                 raise django_template.TemplateSyntaxError("Variable '%s' not defined for '%s'" % (v, self.full_tag))
+            # use key name or id if passed models object
+            if isinstance(params[k], db.Model):
+                params[k] = params[k].key().id_or_name() or params[k].key()
         # search in global urls mapping
         for url in get_config("site.urls", []):
             if url.get('map', "") == self.app:
