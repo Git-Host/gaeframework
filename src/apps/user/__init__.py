@@ -34,9 +34,6 @@ def login_required(*roles):
             # roles not specified
             if not roles:
                 return handler_method(self, *args, **kwargs)
-            # predefined users in project config.yaml file
-            if user.nick in get_config('user.admins', []):
-                return handler_method(self, *args, **kwargs)
             # check role
             for role in roles:
                 # allow access with given role

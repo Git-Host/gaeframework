@@ -1,18 +1,23 @@
 urls:
 - url:
   run: user_profile
+  tag: my_profile
 
 - url: login
   run: login
+  tag: login
 
 - url: logout
   run: logout
+  tag: logout
 
 - url: registration
   run: registration
+  tag: registration
 
 - url: :user
   run: user_profile
+  tag: user_profile
 
 # application specific configuration
 admins: [admin]
