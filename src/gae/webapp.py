@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, urllib
 
 # use external libraries
 external_libs = [file_name for file_name in os.listdir("gae/lib") if file_name.endswith('.zip')]
@@ -19,6 +19,45 @@ from google.appengine.ext import db
 from gae.sessions import get_current_session
 from apps.user import get_current_user
 from gae.config import get_config
+
+
+class Environment:
+    session = None
+    SESSION = None
+    user = None
+
+    def __init__(self):
+        self.user = get_current_user()
+        self.session = get_current_session()
+        self.SESSION = self.session
+    
+    def get(self, key_name=None):
+        '''Return GET parameters'''
+        pass
+    
+    def post(self, key_name=None):
+        '''Return POST parameters'''
+        pass
+    
+    GET = get
+    POST = post
+    
+    def error(self):
+        '''Save error message'''
+        pass
+    
+    def redirect(self, to_page, permanent=False):
+        '''Redirect user to given page'''
+        pass
+    
+    def previous_page(self):
+        '''Return previous page address'''
+        pass
+    
+    def render(self, template_name, variables={}):
+        '''Return current logged-in user'''
+        pass
+
 
 class App:
     _all_apps = None 
@@ -230,27 +269,30 @@ class RequestHandler(webapp.RequestHandler):
                 RequestHandler.urls = []
         # search url address
         url_address = self.request.path.strip('/') + "/"
-        url_info = None
+        url_params = None
         for rule in RequestHandler.urls:
             url_match = re.match(rule['url'], url_address)
             # if url found
             if url_match is not None:
-                url_info = 'arg' in rule and rule['arg'] or {}
+                url_params = 'arg' in rule and rule['arg'] or {}
                 # add matched parameters from url string
-                url_info.update(url_match.groupdict())
+                url_params.update(url_match.groupdict())
                 break
-        if url_info is None:
+        if url_params is None:
             logging.info("Url '%s' not found" % url_address)
             self.error(404)
         elif 'run' not in rule:
             logging.error("Not defined property 'run' in 'urls' section in configuration file")
             self.error(404)
         else:
+            # decode url string parameters
+            for name, value in url_params.items():
+                url_params[name] = urllib.unquote(value).decode("utf-8")
             # set user to global scope
             self.user = get_current_user()
             # run application handler
             (app_name, app_view) = rule['run'].split('.', 1)
-            result = self.load_app(app_name, app_view, url_info)
+            result = self.load_app(app_name, app_view, url_params)
             # send content to user
             self.response.out.write(result)
 
