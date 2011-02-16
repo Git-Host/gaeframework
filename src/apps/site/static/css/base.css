@@ -89,8 +89,6 @@ form input[type=text],
 form input[type=password],
 form textarea {
   border: solid 1px #ddd;
-  color: #888;
-  font-weight: bold;
   padding: 0 3px;
   margin: 0;
 }
@@ -101,6 +99,9 @@ form ul.errorlist {
   padding: 5px;
   background-color: #ffd5d5;
   font-size: 90%;
+}
+form .error {
+  background-color: #ffd5d5;
 }
 /* FORM BUTTONS */
 button,
@@ -140,6 +141,11 @@ table th {
   font-weight: normal;
   font-size: 90%;
 }
+blockquote {
+  border-left: solid 5px #0fb7ef;
+  padding: 10px;
+  margin: 10px 30px;
+}
 
 
 /* Menu */
@@ -167,46 +173,23 @@ table th {
 /* Page */
 #page {
   width: 950px;
-  border: solid 10px #ddd;
+  border: solid 5px #f5f5f5;
   background-color: white;
-  margin: 0px auto 10px auto;
-}
-
-/* Page header */
-#page .header {
-  background-color: #e6e6e6;
-  padding: 5px 10px;
-}
-#page .header .logo {
-  width: 150px;
-  padding-right: 20px;
-}
-#page .header .description {
-  width: 245px;
-  height: 0px;
-  overflow: visible;
-  position: relative;
-  top: -50px;
-  left: 180px;
-  font-size: 14px;
-}
-#page .header>table {
-  width: 100%;
-  border-spacing: 0;
+  margin: 0px auto 5px auto;
 }
 
 
 /* Page content*/
 #page>.content {
   padding: 5px 10px;
-  margin-right: 220px;
+  margin-right: 290px;
 }
 
 
 /* Page sidebar */
 #page>.sidebar {
   float: right;
-  width: 210px;
+  width: 280px;
   margin: 10px 0 0 0;
   padding: 0;
   border-left: solid 5px white;
@@ -214,9 +197,7 @@ table th {
 }
 #page>.sidebar>div {
   padding: 5px;
-  padding-right: 15px;
-  background-color: #f2f2f2;
-  border: solid 3px #eee;
+  background-color: #fafafa;
   border-right-width: 0;
   margin-bottom: 10px;
 }
@@ -227,6 +208,33 @@ table th {
 }
 #page>.sidebar>div>h3>a {
   color: black;
+}
+#page>.sidebar>div.center>h3 {
+  text-align: left;
+}
+/* Download button */
+#page>.sidebar>div.button {
+  width: 232px;
+  height: 65px;
+  font-size: 14px;
+  color: white;
+  background-image: url("/static/site/img/download.png");
+  border: none;
+  padding: 10px 20px 10px 20px;
+}
+#page>.sidebar>div.button A {
+  display: block;
+  color: white;
+  font-weight: bold;
+}
+#page>.sidebar>div.button A:HOVER {
+  color: yellow;
+}
+#page>.sidebar>div.button A.download {
+  font-size: 22px;
+}
+#page>.sidebar>div.button A.source {
+  margin-top: 3px;
 }
 
 
