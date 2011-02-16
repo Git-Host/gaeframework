@@ -1,19 +1,12 @@
-import os, sys, urllib
+#os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+from google.appengine.dist import use_library
+use_library('django', '1.2')
 
-# use external libraries
-external_libs = [file_name for file_name in os.listdir("gae/lib") if file_name.endswith('.zip')]
-for lib in external_libs:
-    # delete support of Django 0.96 if present newly version
-    if lib == "django.zip":
-        for k in [k for k in sys.modules if k.startswith('django')]:
-            del sys.modules[k]
-    sys.path.insert(0, 'gae/lib/%s' % lib)
-
+import os, sys, urllib, re, logging
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from gae import template
 from django.conf import settings as django_settings
-import yaml, re, logging, traceback
 #from gae import db
 from google.appengine.ext import db
 from gae.sessions import get_current_session
