@@ -30,7 +30,7 @@ def render_comment_list(self, context):
     '''Render list of comments for given object'''
     obj = self.get_object(context)
     qs = Comment.all().filter("obj =", obj)
-    return webapp.instance.render("comment/comment_list", {'comment_list': list(qs)})
+    return webapp.instance.render("comments/block/comment_list", {'comment_list': list(qs)})
 
 @register.tag
 @node_rule(BaseNode, ('for [object_instance] as [varname]', 'for [object_type] [object_id] as [varname]'))
@@ -47,14 +47,4 @@ def render_comment_form(self, context):
     through the `comment/form.html` template'''
     obj = self.get_object(context)
     form = UserCommentForm(initial={'obj': obj.key()})
-    return webapp.instance.render("comment/form", {'form': form})
-
-@register.simple_tag
-def comment_form_target():
-    """
-    Get the target URL for the comment form.
-
-    Example:
-        <form action="{% comment_form_target %}" method="POST">
-    """
-    return "/comment/add"
+    return webapp.instance.render("comments/block/form", {'form': form})

@@ -4,3 +4,4 @@ urls:
 
 - url: create_item
   run: create_item
+  tag: create_item

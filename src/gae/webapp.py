@@ -1,17 +1,15 @@
-#os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+import os, sys, urllib, re, logging
 from google.appengine.dist import use_library
 use_library('django', '1.2')
 
-import os, sys, urllib, re, logging
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
-from gae import template
-from django.conf import settings as django_settings
-#from gae import db
 from google.appengine.ext import db
+from django.conf import settings as django_settings
 from gae.sessions import get_current_session
-from apps.user import get_current_user
 from gae.config import get_config
+from gae import template
+from apps.user import get_current_user
 
 
 class Environment:
@@ -98,7 +96,6 @@ class App:
         for app_name in apps_list:
             try:
                 app_models = __import__("apps.%s.models" % app_name, {}, {}, ["models"])
-                logging.warning("File 'apps/%s/models.py' was load" % app_name)
             except ImportError, e:
                 logging.warning("File 'apps/%s/models.py' not load. %s" % (app_name, e))
                 continue
@@ -179,7 +176,7 @@ class RequestHandler(webapp.RequestHandler):
         # show error page for user
         if not self.debug:
             if self.status_code is not None and int(self.status_code) != 200:
-                return self.render(str(self.status_code))
+                return self.render("site/%s" % self.status_code)
             return None
         # show detailed error traceback
         try:
@@ -188,7 +185,7 @@ class RequestHandler(webapp.RequestHandler):
                       "status_code": self.status_code,
                       "traceback": self._traceback_info()}
             # render page with status code on errors
-            return self.render("debug", errors)
+            return self.render("site/debug", errors)
         except TypeError, e:
             logging.warning("Template '%s' not found" % e)
         except (TypeError, Exception), e:
@@ -225,9 +222,8 @@ class RequestHandler(webapp.RequestHandler):
                 try:
                     mod = __import__("apps.%s.tags" % app_name, globals(), {}, app_name)
                     template.django.template.libraries[app_name] = mod.register
-                    logging.info("File '%s.tags' was load" % app_name)
                 except ImportError, e:
-                    logging.warning("File '%s.tags' not load. %s" % (app_name, e))
+                    pass
         # load urls map (only once)
         if not RequestHandler.urls:
             # load global urls mapping

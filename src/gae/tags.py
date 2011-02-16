@@ -193,3 +193,6 @@ def show_pages(self, context):
     '''Return pagination links'''
     paginator = self.get_var(context, self.paginator)
     return template.render('common/show_pages.html', {"paginator": paginator})
+
+from gae.template.tag_elif import do_if
+register.tag("if", do_if)

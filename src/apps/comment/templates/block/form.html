@@ -1,6 +1,6 @@
 {% load comment %}
 
-<form action="{% comment_form_target %}" method="post" class="comment">
+<form action="{% url comments.create_comment %}" method="post" class="comment">
   {% ifequal app "comment" %}
     <input type="hidden" name="back_url" value="{% back_url %}">
   {% else %}

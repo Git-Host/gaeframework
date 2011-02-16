@@ -1,4 +1,4 @@
-{% extends 'user.html' %}
+{% extends 'user/base.html' %}
 
 {% block title %}{% translate "User login" %}{% endblock %}
 
@@ -9,5 +9,5 @@
     {% translate "If you have not an account than" %} <a href="/user/registration?back_url={% back_url %}">{% translate "create new account" %}</a>.
   </p>
 
-  {% include "login_form.html"%}
+  {% include "user/block/login_form.html"%}
 {% endblock %}

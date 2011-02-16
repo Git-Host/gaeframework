@@ -1,6 +1,7 @@
 urls:
 - url: add
   run: create_comment
+  tag: create_comment
 
 #- url: comment/posted
 #  run: comment.comment_done

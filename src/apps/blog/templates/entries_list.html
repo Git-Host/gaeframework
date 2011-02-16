@@ -1,4 +1,4 @@
-{% extends 'blog.html' %}
+{% extends 'blog/base.html' %}
 {% load comment blog %}
 
 {% block title %}{% translate "Blog entries" %}{% endblock %}
@@ -30,5 +30,5 @@
 {% endblock %}
 
 {% block content %}
-  {% include "block/entries_list.html" %}
+  {% include "blog/block/entries_list.html" %}
 {% endblock %}

@@ -6,7 +6,7 @@ import logging
 register = template.create_template_register()
 
 @register.tag
-@node_rule(BaseNode, ("as [varname]", "[adv_name]"))
+@node_rule(BaseNode, ("[adv_name]",))
 def show_banner(self, context):
     '''Show specified banner'''
     try:

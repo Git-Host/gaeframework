@@ -30,7 +30,7 @@ def create_comment(app):
         form = UserCommentForm(data=data, initial={"obj": object_key})
         # preview the comment
         if "preview" in data or not form.is_valid():
-            return app.render('comment/preview', {
+            return app.render('comments/preview', {
                               "form":     form,
                               "comment":  form.data.get("text", ""),
                               })

@@ -1,11 +1,11 @@
-{% extends 'blog/base.html' %}
+{% extends 'blog.html' %}
 
-{% block title %}{% translate "Edit blog entry" %}{% endblock %}
+{% block title %}{% translate "Edit blog entity" %}{% endblock %}
 
 {% block content %}
-  <h1>{% translate "Edit blog entry" %}</h1>
+  <h1>{% translate "Edit blog entity" %}</h1>
 
-  <form method="POST" action="" class="blog entry">
+  <form method="POST" action="" class="blog entity">
     <input type="hidden" name="back_url"  value="{% back_url %}">
     <table>
       {{ form }}
