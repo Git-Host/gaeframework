@@ -1,9 +1,10 @@
 '''
 Administration interface.
 '''
-from models import Message
+from apps.guestbook.forms import MessageAdminForm, MessageInlineAdminForm
 
 class Message():
     name = "Guestbook messages list"
-    model = Message
-    fields = ['author', 'date']
+    forms = (MessageAdminForm, # create
+             MessageAdminForm, # edit
+             MessageInlineAdminForm) # edit multiple records

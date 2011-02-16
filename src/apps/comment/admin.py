@@ -1,9 +1,10 @@
 '''
 Administration interface.
 '''
-from apps.comment.models import Comment
+from apps.comment.forms import CommentAdminForm, CommentInlineAdminForm
 
 class Comment():
     name = "Comments list"
-    model = Comment
-    fields = ('title', 'author', 'created', "active")
+    forms = (CommentAdminForm, # create
+             CommentAdminForm, # edit
+             CommentInlineAdminForm) # edit multiple records
