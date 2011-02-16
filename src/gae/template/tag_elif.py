@@ -66,6 +66,7 @@ class IfNode(Node):
             if var:
                 return n.node_list.render(context)
                 break
+        return ""
 
 
 def do_if(parser, token):
