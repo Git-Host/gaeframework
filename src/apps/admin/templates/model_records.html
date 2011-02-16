@@ -29,7 +29,7 @@
         </th>
       </tr>
       {% for record in records %}
-        <tr class="horizontal">
+        <tr class="horizontal {% cycle even,odd %}">
           <td>
             <input type="checkbox" title="Select record" value="{{ record.key }}">
           </td>
@@ -45,8 +45,8 @@
             </td>
           {% endfor %}
           <td class="actions">
-            <a href="/{{ app }}/{{ managed_app }}/{{ model }}/edit/{{ record.key }}" class="button mini">Edit</a>
-            <a href="/{{ app }}/{{ managed_app }}/{{ model }}/delete/{{ record.key }}" class="button mini confirm">Delete</a>
+            <a href="/{{ app }}/{{ managed_app }}/{{ model }}/edit/{{ record.key }}" class="">Edit</a>
+            <a href="/{{ app }}/{{ managed_app }}/{{ model }}/delete/{{ record.key }}" class="confirm">Delete</a>
           </td>
         </tr>
       {% empty %}

@@ -21,8 +21,13 @@ form.admin_model_records table {
   border-spacing: 0;
   width: 100%;
   margin: 3px auto;
-  border: solid 1px #FFDD55;
+  border: solid 1px #EEE;
   padding: 3px;
+}
+form.admin_model_records tr {
+  border-spacing: 0;
+  margin: 0;
+  padding: 0;
 }
 form.admin_model_records td,
 form.admin_model_records th {
@@ -32,10 +37,11 @@ form.admin_model_records tr .pages {
   margin: 0;
 }
 form.admin_model_records th {
-  background-color: #FFDD55;
+  background-color: #EEE;
 }
+form.admin_model_records tr.odd,
 form.admin_model_records tr:HOVER {
-  background-color: #FFEEAA;
+  background-color: #FAFAFA;
 }
 form.admin_model_records td a {
   cursor: pointer;
