@@ -5,7 +5,7 @@
 {% block content %}
   <h3>Guestbook</h3>
 
-  <a href="{% url guestbook.create_item %}/create_item">Add message</a>
+  <a href="{% url guestbook.create_item %}">Add message</a>
 
   {% for greeting in greetings %}
     <p>
