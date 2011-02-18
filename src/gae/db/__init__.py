@@ -88,6 +88,7 @@ class Model(Model):
                 # get field value based on sequence of field names
                 field_value = self
                 for field in name.split('__'):
+                    if field_value is None: break
                     field_value = getattr(field_value, field)
                     # call method
                     if callable(field_value):
