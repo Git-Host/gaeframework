@@ -10,8 +10,9 @@ Usage:
     language = get_config("site.language", "en")
 '''
 import os, yaml, sys, copy
-
+from gae.core import applications
 __all__ = ["get_config"]
+
 
 class Config:
     _already_loaded = False
@@ -23,9 +24,8 @@ class Config:
             raise Exception, "For access to configuration please use get_config() function"
         Config._already_loaded = True
         # get list of all applications
-        apps = sys.modules['gae.webapp'].App.apps_list()
         # get list of configuration files
-        apps_configs = [(app_name, os.path.join(app_path, "config.yaml")) for app_name, app_path in apps.items()]
+        apps_configs = [(app_name, os.path.join(app_path, "config.yaml")) for app_name, app_path in applications().items()]
         # load configuration files
         for app_name, app_config in apps_configs:
             Config._apps_configs[app_name] = self._load_config(app_config)

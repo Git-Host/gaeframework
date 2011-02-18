@@ -8,6 +8,7 @@ from google.appengine.ext import db
 from django.conf import settings as django_settings
 from gae.sessions import get_current_session
 from gae.config import get_config
+from gae.core import applications
 from gae import template
 from apps.user import get_current_user
 
@@ -51,7 +52,6 @@ class Environment:
 
 
 class App:
-    _all_apps = None 
     _project_dir = None
     _framework_dir = None
 
@@ -76,16 +76,6 @@ class App:
     framework_dir = property(get_framework_dir, set_framework_dir)
 
     @staticmethod
-    def apps_list():
-        '''Return list of all available applications'''
-        # load applications list only once
-        if App._all_apps is None:
-            App._all_apps = dict([(app, os.path.join(App.project_dir, 'apps', app))
-                                   for app in os.listdir(os.path.join(App.project_dir, 'apps'))
-                                   if os.path.isdir(os.path.join(App.project_dir, 'apps', app))])
-        return App._all_apps
-
-    @staticmethod
     def load_models(apps_list):
         '''Load all models and store in GAE db module'''
         # load only once
@@ -106,8 +96,8 @@ class App:
     @staticmethod
     def init_apps():
         '''Load and initialize all available applications'''
-        # TODO: load models only for used applications (based on urls mapping) 
-        App.load_models(App.apps_list())
+        # TODO: load models only for used applications (based on urls mapping)
+        App.load_models(applications())
 
 class RequestHandler(webapp.RequestHandler):
     app_name = None
@@ -218,7 +208,7 @@ class RequestHandler(webapp.RequestHandler):
             # use patched and new template tags
             template.register_template_library('gae.tags')
             # register template tags for each  application
-            for app_name in App.apps_list().keys():
+            for app_name in applications().keys():
                 try:
                     mod = __import__("apps.%s.tags" % app_name, globals(), {}, app_name)
                     template.django.template.libraries[app_name] = mod.register

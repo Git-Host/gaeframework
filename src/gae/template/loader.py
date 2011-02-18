@@ -7,12 +7,12 @@ from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.template.loader import BaseLoader
 from django.utils._os import safe_join
-from gae.webapp import App
+from gae.core import applications
 
 # At compile time, cache the directories to search.
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 app_template_dirs = {}
-for app, app_path in App.apps_list().items():
+for app, app_path in applications().items():
     template_dir = os.path.join(app_path, 'templates')
     if os.path.isdir(template_dir):
         app_template_dirs[app] = template_dir.decode(fs_encoding)
