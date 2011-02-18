@@ -352,7 +352,7 @@ def run(project_dir):
     App.framework_dir = os.path.dirname(__file__)
     App.init_apps()
     # auto detect environment (development or production)
-    debug = os.environ['HTTP_HOST'].startswith('localhost')
+    debug = os.environ['SERVER_SOFTWARE'].startswith('Development')
     RequestHandler.debug = debug
     handler = webapp.WSGIApplication([('/.*', RequestHandler)], debug=debug)
     run_wsgi_app(handler)

@@ -4,7 +4,7 @@ from gae.template.tag_elif import *
 
 try:
     # configure django templates loader
-    debug = os.environ['HTTP_HOST'].startswith('localhost')
+    debug = os.environ['SERVER_SOFTWARE'].startswith('Development')
     django.conf.settings.configure(
         DEBUG = debug,
         TEMPLATE_DEBUG = debug,
