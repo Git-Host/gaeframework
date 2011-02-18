@@ -39,9 +39,6 @@ def create_entry(app):
         if form.is_valid():
             form.save()
             return app.redirect("go back")
-#        print "---"
-#        print app.request.POST
-#        print form.active
     else:
         # empty form
         form = EntityCreateForm()
