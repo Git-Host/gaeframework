@@ -130,7 +130,7 @@ class UrlNode(django_template.Node):
         # search in global urls mapping
         for url in get_config("site.urls", []):
             if url.get('map', "") == self.app:
-                url_prefix = url.get('url', "")
+                url_prefix = url.get('url') or ""
                 # search in mapped application
                 for url in get_config("%s.urls" % self.app, []):
                     if url.get('tag', "") == self.tag:
