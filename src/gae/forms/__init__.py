@@ -18,7 +18,7 @@ class ModelForm(djangoforms.ModelForm):
     def __init__(self, *args, **kwargs):
         '''Added i18m support to model fields and choices'''
         # detect current application name by model name
-        app_name = re.sub("^([A-Z][^A-Z]+).*", "\\1", self.__class__.__name__).lower()
+        app_name = re.sub("^([A-Z][^A-Z]+).*", "\\1", self.Meta.model.kind()).lower()
         # translate fields
         for field_name, field in self.base_fields.items():
             # translate label
