@@ -2,13 +2,18 @@
 "yes": да
 "No": Нет
 "no": нет
+Create: Создать
+Delete: Удалить
 Cancel: Отмена
+
 
 # form: default choice
 "---------": -- Выберите --
 
-# form: validation
+
+# forms: validation
 Value is too short: Значение слишком короткое
+
 
 # pagination
 back: назад
