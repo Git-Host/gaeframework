@@ -5,7 +5,7 @@ api_version: 1
 
 builtins:
 - remote_api: on
-- datastore_admin: on
+- appstats: on
 
 handlers:
 # cron jobs (allow to run only automatically)
