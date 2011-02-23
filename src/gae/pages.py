@@ -8,6 +8,10 @@ class PagesException(Exception):
 
 class Pages:
     _records = None
+    collection = None
+    on_page = 10 # show records on each page
+    page = 1 # current page
+    url = "" # url address of current page
 
     def __init__(self, collection, on_page, attr_name="page", url=None):
         # check collection
@@ -25,7 +29,7 @@ class Pages:
             url = url + "&"
         else:
             url = url + "?"
-        self.url = url + attr_name
+        self.url = url + attr_name + "="
 
     def total_pages(self):
         return int(ceil(float(self.collection.count()) / self.on_page))
@@ -45,11 +49,44 @@ class Pages:
         return self
 
     def next(self):
+        '''Used for loops'''
         self._index = self._index + 1
         records = self.records()
         if self._index >= len(records):
             raise StopIteration
         return records[self._index]
+
+    def has_previous(self):
+        return self.current_page() > 1
+
+    def has_next(self):
+        return self.current_page() < self.total_pages()
+
+    def previous_page_number(self):
+        return self.current_page() - 1
+
+    def next_page_number(self):
+        return self.current_page() + 1
+
+    def previous_page_url(self):
+        return "%(prefix)s%(page)s" % {
+               "prefix": self.url,
+               "page": self.previous_page_number()}
+
+    def next_page_url(self):
+        return "%(prefix)s%(page)s" % {
+               "prefix": self.url,
+               "page": self.next_page_number()}
+
+    def previous_page_link(self):
+        return "<a href='%(prefix)s%(page)s' class='back'>Back</a>" % {
+               "prefix": self.url,
+               "page": self.previous_page_number()}
+
+    def next_page_link(self):
+        return "<a href='%(prefix)s%(page)s' class='next'>Next</a" % {
+               "prefix": self.url,
+               "page": self.next_page_number()}
 
     def render_pages(self):
         '''Return numbers of pages'''
@@ -59,17 +96,17 @@ class Pages:
         pages = []
         # add 'back' and 'first' links
         if self.current_page() > 1:
-            pages.append("<a href='%(prefix)s=1' class='first'>First</a>" % {'prefix': self.url})
-            pages.append("<a href='%(prefix)s=%(page)s' class='back'>Back</a>" % {'page': self.current_page() - 1, 'prefix': self.url})
+            pages.append("<a href='%(prefix)s1' class='first'>First</a>" % {'prefix': self.url})
+            pages.append("<a href='%(prefix)s%(page)s' class='back'>Back</a>" % {'page': self.current_page() - 1, 'prefix': self.url})
         for page in range(start_range, end_range+1):
             if page == self.current_page():
-                pages.append("<a href='%(prefix)s=%(page)s' class='current'>%(page)s</a>" % {'page': page, 'prefix': self.url})
+                pages.append("<a href='%(prefix)s%(page)s' class='current'>%(page)s</a>" % {'page': page, 'prefix': self.url})
             else:
-                pages.append("<a href='%(prefix)s=%(page)s'>%(page)s</a>" % {'page': page, 'prefix': self.url})
+                pages.append("<a href='%(prefix)s%(page)s'>%(page)s</a>" % {'page': page, 'prefix': self.url})
         # add 'next' and 'last' links
         if self.current_page() < total_pages:
-            pages.append("<a href='%(prefix)s=%(page)s' class='next'>Next</a>" % {'page': self.current_page() + 1, 'prefix': self.url})
-            pages.append("<a href='%(prefix)s=%(page)s' class='last'>Last</a>" % {'page': total_pages,'prefix': self.url})
+            pages.append("<a href='%(prefix)s%(page)s' class='next'>Next</a>" % {'page': self.current_page() + 1, 'prefix': self.url})
+            pages.append("<a href='%(prefix)s%(page)s' class='last'>Last</a>" % {'page': total_pages,'prefix': self.url})
         # insert data to tag <p>
         pages.insert(0, "<p class='pages'>")
         pages.append("</p>")
