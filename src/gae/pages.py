@@ -3,6 +3,9 @@ from gae.db import Query
 from math import ceil
 from gae import webapp
 
+# FIXME: If we on second page than we see incorrect url http://.../appname/action&page=1
+# TODO: Hide page number if we go to first page (not show ?page=1)
+
 class PagesException(Exception):
     pass
 
