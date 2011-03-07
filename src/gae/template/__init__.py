@@ -1,6 +1,7 @@
 import sys, os
 import django.template, django.template.loader, django.conf
 from gae.template.tag_elif import *
+from gae.config import get_config
 
 try:
     # configure django templates loader
@@ -8,7 +9,10 @@ try:
     django.conf.settings.configure(
         DEBUG = debug,
         TEMPLATE_DEBUG = debug,
-        TEMPLATE_LOADERS=('gae.template.loader.Loader',),
+        TEMPLATE_LOADERS=('gae.template.loader.Loader', 'django.template.loaders.filesystem.load_template_source',),
+        LANGUAGE_CODE = get_config("site.language"),
+        USE_I18N = True,
+        USE_L10N = True,
     )
 except (EnvironmentError, RuntimeError), e:
     pass
