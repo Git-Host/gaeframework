@@ -12,8 +12,6 @@ def monkey_patch(name, bases, namespace):
 
 
 class Model(Model):
-    MEMCACHE_LIFETIME = 3600 # in seconds
-
     @classmethod
     def kind(cls):
         '''Return class name in format <AppnameClassname>'''
@@ -25,6 +23,10 @@ class Model(Model):
         # add application name as prefix of model
         return "%s%s" % (app_name, cls.__name__)
 
+
+class UniqueModel(Model):
+    '''Model with control unique properties'''
+    
     def put(self, **kwargs):
 #        if not self.is_saved():
 #            self._key_name = self._generate_key()
@@ -67,23 +69,28 @@ class Model(Model):
         # return changed arguments
         return key_name
 
+
+class CachedModel(Model):
+    '''Model with cache support for properties'''
+    MEMCACHE_LIFETIME = 3600 # in seconds
+
     def __getattr__(self, name):
         '''
         Return cached property.
 
-        Usage: blog_entity.author__nick'''
+        Usage: blog_entry.author__nick'''
         try:
             # check parent class virtual property
             return super(Model, self).__getattr__(name)
         except AttributeError:
             pass
-        # try to load cached property
-        if "__" not in name:
+        if name.find("__") <= 0: # not handle "__iter__" and other magic methods
             raise AttributeError
-        memcache_key = "%s (%s): %s" % (self.kind(), self.key(), name)
+        # try to load cached property
+        memcache_key = "Kind: %s. Key: %s. Property: %s" % (self.kind(), self.key(), name)
         # load field from memcache
         field_value = memcache.get(memcache_key)
-        if not field_value:
+        if field_value is None:
             try:
                 # get field value based on sequence of field names
                 field_value = self
@@ -96,11 +103,11 @@ class Model(Model):
                 # convert value to string
                 if isinstance(field_value, (Model, Property)):
                     field_value = unicode(field_value)
-            except Exception:
+            except:
                 raise AttributeError
-            # set field value to memcache
-            if not memcache.add(memcache_key, field_value, time=self.MEMCACHE_LIFETIME):
-                logging.error("Memcache set failed. CachedModel field %r" % name)
+            if field_value is not None: # set field value to memcache
+                if not memcache.add(memcache_key, field_value, time=self.MEMCACHE_LIFETIME):
+                    logging.error("Memcache set failed. CachedModel field %r" % name)
         return field_value
 
 class Property(Property):
