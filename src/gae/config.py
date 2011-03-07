@@ -23,7 +23,6 @@ class Config:
         if Config._already_loaded:
             raise Exception, "For access to configuration please use get_config() function"
         Config._already_loaded = True
-        # get list of all applications
         # get list of configuration files
         apps_configs = [(app_name, os.path.join(app_path, "config.yaml")) for app_name, app_path in applications().items()]
         # load configuration files
