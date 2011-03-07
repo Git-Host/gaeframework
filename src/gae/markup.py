@@ -4,6 +4,19 @@ class Wiki:
     '''
     Parse wiki markup and return html.
     
+    Syntax:
+        [h1 Title 1]
+        Url is [1] (or [2 Link text]). This is [img 3] or [img 4 Hello World!] images.
+        [code python]
+          ...
+        [/code]
+        ----
+        [1] http://link
+        [2] http://link2
+        [3] http://link3
+        [4] http://link4 class="one two"
+        [h1] name="title1"
+    
     Using:
       Wiki().parse(raw_data)
     '''
