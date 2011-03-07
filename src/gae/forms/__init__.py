@@ -39,3 +39,11 @@ class ModelForm(djangoforms.ModelForm):
                 if field_name not in self.base_fields.keys(): # field not editable in form
                     self.cleaned_data[field_name] = value
         super(ModelForm, self)._clean_fields()
+
+
+class SelectMultiple(SelectMultiple):
+    def value_from_datadict(self, data, files, name):
+        try:
+            return data.getall(name)
+        except:
+            return data.get(name, None)
