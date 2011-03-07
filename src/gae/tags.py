@@ -126,7 +126,7 @@ class UrlNode(django_template.Node):
                 raise django_template.TemplateSyntaxError("Variable '%s' not defined for '%s'" % (v, self.full_tag))
             # use key name or id if passed models object
             if isinstance(params[k], db.Model):
-                params[k] = params[k].key().id_or_name() or params[k].key()
+                params[k] = params[k].key().name() or params[k].key().id() or params[k].key()
         # search in global urls mapping
         for url in get_config("site.urls", []):
             if url.get('map', "") == self.app:
