@@ -1,7 +1,7 @@
 from gae import db
 from apps.user import get_current_user
 
-class Blog(db.Model):
+class Blog(db.UniqueModel, db.Model):
     KEY_NAME = "%(slug)s"
     slug = db.StringProperty('blog url', required=True)
     name = db.StringProperty('blog name', required=True)
@@ -34,7 +34,7 @@ class Tag(db.Model):
     def __unicode__(self):
         return self.name
 
-class Entity(db.Model):
+class Entity(db.UniqueModel, db.Model):
     KEY_NAME = "%(blog)s/%(slug)s"
     slug = db.StringProperty('blog post url', required=True)
     title = db.StringProperty(required=True)

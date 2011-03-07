@@ -6,6 +6,10 @@ from apps.user.models import User
 from apps.user import login_required
 
 
+def users_list(app):
+    return app.render('user/users_list', {'users': User.all().order("-created")})
+
+
 def login(app):
     if app.request.POST:
         # filled form

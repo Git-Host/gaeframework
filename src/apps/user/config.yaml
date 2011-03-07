@@ -1,7 +1,7 @@
 urls:
 - url:
-  run: user_profile
-  tag: my_profile
+  run: users_list
+  tag: users_list
 
 - url: login
   run: login

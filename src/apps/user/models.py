@@ -1,7 +1,7 @@
 from gae.config import get_config 
 from gae import db
 
-class User(db.Model):
+class User(db.UniqueModel, db.Model):
     '''User registered by nick name and password in local datastore'''
     KEY_NAME    = "%(nick)s"
     nick        = db.SlugProperty(required=True, min_length=3, max_length=25)

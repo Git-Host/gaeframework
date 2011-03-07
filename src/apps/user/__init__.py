@@ -7,7 +7,7 @@ def get_current_user():
     '''Return current user; otherwise return unautorized user object'''
     session = get_current_session()
     if "user" not in session:
-        return None
+        return None # TODO: return anonimous User() object
     return session['user']
 
 def get_login_url(back_url):

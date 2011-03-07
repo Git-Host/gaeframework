@@ -7,7 +7,7 @@ class Tag(db.Model):
     def __unicode__(self):
         return self.name
 
-class Entity(db.Model):
+class Entity(db.UniqueModel, db.Model):
     KEY_NAME = "%(slug)s"
     slug = db.StringProperty('entry url', required=True)
     title = db.StringProperty(required=True)

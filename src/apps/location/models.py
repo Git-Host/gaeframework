@@ -8,7 +8,7 @@ class Currency(db.Model):
     def __unicode__(self):
         return self.name
 
-class Country(db.Model):
+class Country(db.UniqueModel, db.Model):
     '''Country'''
     KEY_NAME = "%(slug)s"
     slug     = db.SlugProperty("short country form (us, uk, fr)", required=True, max_length=50)
@@ -19,7 +19,7 @@ class Country(db.Model):
     def __unicode__(self):
         return self.name
 
-class Region(db.Model):
+class Region(db.UniqueModel, db.Model):
     '''Region (state)'''
     KEY_NAME = "%(slug)s"
     slug     = db.SlugProperty("short state form (kiev, msk, ny)", required=True, max_length=50)
@@ -32,7 +32,7 @@ class Region(db.Model):
     def full_name(self):
         return "%s, %s" % (self.name, self.country)
 
-class City(db.Model):
+class City(db.UniqueModel, db.Model):
     '''City'''
     KEY_NAME = "%(slug)s"
     UNIQUE   = ("phone_code", ("name", "region"))

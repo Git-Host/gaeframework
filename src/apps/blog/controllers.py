@@ -23,7 +23,7 @@ def entries_list(app, tags=None):
         entries.filter('active', True)
     # render page
     return app.render('blog/entries_list', {
-                      'entries': Pages(entries, 20, "entries_page"),
+                      'entries': Pages(entries, 10, "entries_page"),
                       })
 
 def entry_details(app, entry):
