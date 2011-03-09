@@ -1,15 +1,7 @@
 import os, logging
 from google.appengine.api import memcache
 from google.appengine.ext.db import *
-
-def monkey_patch(name, bases, namespace):
-    assert len(bases) == 1, 'Exactly one base class is required'
-    base = bases[0]
-    for name, value in namespace.iteritems():
-        if name not in ('__metaclass__', '__module__'):
-            setattr(base, name, value)
-    return base
-
+from gae import tools
 
 class Model(Model):
     @classmethod
@@ -24,7 +16,7 @@ class Model(Model):
         return "%s%s" % (app_name, cls.__name__)
 
 
-class UniqueModel(Model):
+class UniqueModel:
     '''Model with control unique properties'''
     
     def put(self, **kwargs):
@@ -70,7 +62,7 @@ class UniqueModel(Model):
         return key_name
 
 
-class CachedModel(Model):
+class CachedModel:
     '''Model with cache support for properties'''
     MEMCACHE_LIFETIME = 3600 # in seconds
 
@@ -111,7 +103,7 @@ class CachedModel(Model):
         return field_value
 
 class Property(Property):
-    __metaclass__ = monkey_patch
+    __metaclass__ = tools.monkey_patch
 
     def validate(self, value):
         '''

@@ -1,5 +1,6 @@
 from google.appengine.ext.db import djangoforms
 from gae.translation import translate as _
+from gae import tools
 import re
 try:
     from django.newforms import *
@@ -42,7 +43,7 @@ class ModelForm(djangoforms.ModelForm):
 
 
 class SelectMultiple(SelectMultiple):
-    __metaclass__ = djangoforms.monkey_patch
+    __metaclass__ = tools.monkey_patch
 
     def value_from_datadict(self, data, files, name):
         '''Receive multiple values from GET or POST request'''
@@ -53,7 +54,7 @@ class SelectMultiple(SelectMultiple):
 
 
 class MultipleHiddenInput(MultipleHiddenInput):
-    __metaclass__ = djangoforms.monkey_patch
+    __metaclass__ = tools.monkey_patch
 
     def value_from_datadict(self, data, files, name):
         '''Receive multiple values from GET or POST request'''

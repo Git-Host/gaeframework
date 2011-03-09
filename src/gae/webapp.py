@@ -8,7 +8,7 @@ from google.appengine.ext import db
 from django.conf import settings as django_settings
 from gae.sessions import get_current_session
 from gae.config import get_config
-from gae.core import applications
+from gae.tools import applications
 from gae import template
 from apps.user import get_current_user
 

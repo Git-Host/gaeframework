@@ -10,7 +10,7 @@ Usage:
     language = get_config("site.language", "en")
 '''
 import os, yaml, sys, copy
-from gae.core import applications
+from gae.tools import applications
 __all__ = ["get_config"]
 
 

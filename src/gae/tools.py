@@ -9,3 +9,11 @@ def applications():
                                for app in os.listdir('apps')
                                if os.path.isdir(os.path.join('apps', app))])
     return _applications
+
+def monkey_patch(name, bases, namespace):
+    assert len(bases) == 1, 'Exactly one base class is required'
+    base = bases[0]
+    for name, value in namespace.iteritems():
+        if name not in ('__metaclass__', '__module__'):
+            setattr(base, name, value)
+    return base
