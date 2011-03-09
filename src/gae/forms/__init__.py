@@ -42,7 +42,21 @@ class ModelForm(djangoforms.ModelForm):
 
 
 class SelectMultiple(SelectMultiple):
+    __metaclass__ = djangoforms.monkey_patch
+
     def value_from_datadict(self, data, files, name):
+        '''Receive multiple values from GET or POST request'''
+        try:
+            return data.getall(name)
+        except:
+            return data.get(name, None)
+
+
+class MultipleHiddenInput(MultipleHiddenInput):
+    __metaclass__ = djangoforms.monkey_patch
+
+    def value_from_datadict(self, data, files, name):
+        '''Receive multiple values from GET or POST request'''
         try:
             return data.getall(name)
         except:
