@@ -18,8 +18,8 @@ handlers:
   upload: apps/(\w+)/static/(.*)
 # site favicon
 - url: /favicon.ico
-  static_files: static/site/img/favicon.ico
-  upload: static/site/img/favicon.ico
+  static_files: apps/site/static/img/favicon.ico
+  upload: apps/site/static/img/favicon.ico
 # run GAE framework request handler
 - url: /.*
   script: main.py
