@@ -313,6 +313,7 @@ class RequestHandler(webapp.RequestHandler):
             uri = self.back_url()
         elif uri in ["reload", "reload page", "refresh", "refresh page"]:
             uri = self.request.path
+        uri = uri.encode("utf-8")
         super(RequestHandler, self).redirect(uri, permanent)
 
     def _prepare_url(self, url, url_prefix=""):
