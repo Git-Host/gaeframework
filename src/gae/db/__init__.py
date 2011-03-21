@@ -15,6 +15,15 @@ class Model(Model):
         # add application name as prefix of model
         return "%s%s" % (app_name, cls.__name__)
 
+    def __eq__(self, other):
+        # compare objects keys
+        if self.is_saved() and other.is_saved():
+            return self.key() == other.key()
+        return False
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
 
 class UniqueModel:
     '''Model with control unique properties'''
@@ -175,13 +184,15 @@ class PhoneListProperty(StringListProperty):
             value = [re.sub('[^0-9]', '', phone) for phone in value.split(',')]
         return value
 
+
 class ReferenceListProperty(ListProperty):
-    def __init__(self, reference_to, verbose_name=None, default=None, **kwds):
-        self.reference_to = reference_to
+    def __init__(self, reference_type, verbose_name=None, default=None, **kwds):
+        self.reference_type = reference_type
         super(ReferenceListProperty, self).__init__(item_type=Key,
                                                 verbose_name=verbose_name,
                                                 default=default,
                                                 **kwds)
+
 
 class ImageProperty(UnindexedProperty):
     """Image blob"""
