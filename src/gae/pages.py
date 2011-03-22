@@ -3,9 +3,6 @@ from gae.db import Query
 from math import ceil
 from gae import webapp
 
-# FIXME: If we on second page than we see incorrect url http://.../appname/action&page=1
-# TODO: Hide page number if we go to first page (not show ?page=1)
-
 class PagesException(Exception):
     pass
 
@@ -29,10 +26,15 @@ class Pages:
         # add new parameter to url
         if "?" in url:
             url = re.sub("([\?&])%s=[^&]*&?" % attr_name, "\\1", url).rstrip("&?")
-            url = url + "&"
-        else:
-            url = url + "?"
-        self.url = url + attr_name + "="
+        self.url = url
+        self.attr_name = attr_name
+
+    def url_with_page_number(self, page_number):
+        url = self.url
+        if page_number <= 1: # not show parameter for the first page
+            return url
+        url = url + "&" if "?" in url else url + "?"
+        return "%s%s=%s" % (url, self.attr_name, page_number)
 
     def total_pages(self):
         return int(ceil(float(self.collection.count()) / self.on_page))
@@ -72,24 +74,18 @@ class Pages:
         return self.current_page() + 1
 
     def previous_page_url(self):
-        return "%(prefix)s%(page)s" % {
-               "prefix": self.url,
-               "page": self.previous_page_number()}
+        return self.url_with_page_number(self.previous_page_number())
 
     def next_page_url(self):
-        return "%(prefix)s%(page)s" % {
-               "prefix": self.url,
-               "page": self.next_page_number()}
+        return self.url_with_page_number(self.next_page_number())
 
     def previous_page_link(self):
-        return "<a href='%(prefix)s%(page)s' class='back'>Back</a>" % {
-               "prefix": self.url,
-               "page": self.previous_page_number()}
+        return "<a href='%(address)s' class='back'>Back</a>" % {
+               "address": self.previous_page_url()}
 
     def next_page_link(self):
-        return "<a href='%(prefix)s%(page)s' class='next'>Next</a" % {
-               "prefix": self.url,
-               "page": self.next_page_number()}
+        return "<a href='%(address)s' class='next'>Next</a" % {
+               "address": self.next_page_url()}
 
     def render_pages(self):
         '''Return numbers of pages'''
@@ -99,17 +95,17 @@ class Pages:
         pages = []
         # add 'back' and 'first' links
         if self.current_page() > 1:
-            pages.append("<a href='%(prefix)s1' class='first'>First</a>" % {'prefix': self.url})
-            pages.append("<a href='%(prefix)s%(page)s' class='back'>Back</a>" % {'page': self.current_page() - 1, 'prefix': self.url})
+            pages.append("<a href='%(address)s' class='first'>First</a>" % {'address': self.url_with_page_number(1)})
+            pages.append(self.previous_page_link())
         for page in range(start_range, end_range+1):
             if page == self.current_page():
-                pages.append("<a href='%(prefix)s%(page)s' class='current'>%(page)s</a>" % {'page': page, 'prefix': self.url})
+                pages.append("<a href='%(address)s' class='current'>%(page)s</a>" % {'page': page, 'address': self.url_with_page_number(page)})
             else:
-                pages.append("<a href='%(prefix)s%(page)s'>%(page)s</a>" % {'page': page, 'prefix': self.url})
+                pages.append("<a href='%(address)s'>%(page)s</a>" % {'page': page, 'address': self.url_with_page_number(page)})
         # add 'next' and 'last' links
         if self.current_page() < total_pages:
-            pages.append("<a href='%(prefix)s%(page)s' class='next'>Next</a>" % {'page': self.current_page() + 1, 'prefix': self.url})
-            pages.append("<a href='%(prefix)s%(page)s' class='last'>Last</a>" % {'page': total_pages,'prefix': self.url})
+            pages.append(self.next_page_link())
+            pages.append("<a href='%(address)s' class='last'>Last</a>" % {'address': self.url_with_page_number(total_pages)})
         # insert data to tag <p>
         pages.insert(0, "<p class='pages'>")
         pages.append("</p>")
