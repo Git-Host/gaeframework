@@ -12,6 +12,13 @@ TODO: translate "default" value
 TODO: translate error messages
 '''
 
+class ValidationError(ValidationError):
+    def __init__(self, message, *args, **kwargs):
+        '''Translate message to current language'''
+        message = _(message)
+        super(ValidationError, self).__init__(message=message, *args, **kwargs)
+
+
 class ModelForm(djangoforms.ModelForm):
     '''
     Added: automatically translate fields and choices in model.
