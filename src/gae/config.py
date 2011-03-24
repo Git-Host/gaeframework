@@ -53,8 +53,8 @@ class Config:
         '''
         app_name, app_path = path.split('.', 1)
         # search in site application
-        config = self._apps_configs.get("site.apps", {})
-        for piece in app_path.split('.'):
+        config = self._apps_configs.get("site", {}).get("apps", {})
+        for piece in path.split('.'):
             config = config.get(piece)
             if config is None: break
         # search in specified application
