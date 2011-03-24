@@ -17,7 +17,7 @@ class Model(Model):
 
     def __eq__(self, other):
         # compare objects keys
-        if self.is_saved() and other.is_saved():
+        if self.is_saved() and isinstance(other, Model) and other.is_saved():
             return self.key() == other.key()
         return False
 
