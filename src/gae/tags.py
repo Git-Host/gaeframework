@@ -7,6 +7,7 @@ from django.template import get_library
 from django import template as django_template
 from gae.translation import translate as _
 from gae.config import get_config
+from gae.tools import prepare_url_vars
 
 def node_rule(base_obj, rules):
     '''
@@ -140,7 +141,7 @@ class UrlNode(django_template.Node):
 
     def _make_url(self, url, vars={}):
         # convert url to style "%(blog)s/new"
-        url_with_placemarks = re.sub(":([^/]+)(/|$)", "%(\\1)s\\2", url)
+        url_with_placemarks = prepare_url_vars(url, "%(\\1)s")
         try:
             # insert values from dictionary to string
             return url_with_placemarks % vars

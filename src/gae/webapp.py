@@ -8,7 +8,7 @@ from google.appengine.ext import db
 from django.conf import settings as django_settings
 from gae.sessions import get_current_session
 from gae.config import get_config
-from gae.tools import applications
+from gae.tools import applications, prepare_url_vars
 from gae import template
 from apps.user import get_current_user
 
@@ -241,16 +241,17 @@ class RequestHandler(webapp.RequestHandler):
             # compile regular expressions for use in all next requests
             try:
                 for rule in RequestHandler.urls:
-                    rule['url'] = re.compile("%s" % rule['url'])
+                    rule['_url'] = re.compile("%s" % rule['url'])
             except Exception, err:
                 logging.error("You have an error with urls mapping in regular expression %r - %s" % (rule['url'], err))
                 # delete urls because we have errors in urls
                 RequestHandler.urls = []
         # search url address
         url_address = self.request.path.strip('/') + "/"
+        url_address = urllib.unquote(url_address).decode("utf-8")
         url_params = None
         for rule in RequestHandler.urls:
-            url_match = re.match(rule['url'], url_address)
+            url_match = re.match(rule['_url'], url_address)
             # if url found
             if url_match is not None:
                 url_params = 'arg' in rule and rule['arg'] or {}
@@ -266,7 +267,9 @@ class RequestHandler(webapp.RequestHandler):
         else:
             # decode url string parameters
             for name, value in url_params.items():
-                url_params[name] = urllib.unquote(value).decode("utf-8")
+                url_params[name] = urllib.unquote(value)
+                if type(url_params[name]) is not unicode: # encode url parameters
+                    url_params[name] = url_params[name].decode("utf-8")
             # set user to global scope
             self.user = get_current_user()
             # run application handler
@@ -321,12 +324,12 @@ class RequestHandler(webapp.RequestHandler):
         # compatibility for use empty string in url (without manually setting empty string as "")
         if url is None: url = ""
         if url_prefix is None: url_prefix = ""
-        # delete trailing staces
+        # delete trailing spaces
         url = url.strip('/')
         url_prefix = url_prefix.strip('/')
         # replace ":var_name" to regular expression rule
-        url = re.sub(":([_\w]+)", "(?P<\\1>[^/]+)", url)
-        url_prefix = re.sub(":([_\w]+)", "(?P<\\1>[^/]+)", url_prefix)
+        url = prepare_url_vars(url, "(?P<\\1>[^/]+)")
+        url_prefix = prepare_url_vars(url_prefix, "(?P<\\1>[^/]+)")
         # delete spaces after join url with prefix, if url or prefix is empty
         return "^%s/?$" % "/".join([url_prefix, url]).strip('/')
 

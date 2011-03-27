@@ -1,4 +1,4 @@
-import os
+import os, re
 
 _applications = None
 def applications():
@@ -17,3 +17,13 @@ def monkey_patch(name, bases, namespace):
         if name not in ('__metaclass__', '__module__'):
             setattr(base, name, value)
     return base
+
+def prepare_url_vars(url_address, var_pattern="(?P<\\1>[^/]+)"):
+    '''
+    Return url address with replaced variables from UPPER_NAME to specified pattern in lower_name style.
+    
+    Examples:
+        blog/BLOG_SLUG/new -> blog/%(blog_slug)s/new
+        blog/category:CATEGORY_SLUG -> blog/category:(?P<category_slug>[^/]+)
+    '''
+    return re.sub("([A-Z][A-Z0-9_]*)", lambda x: re.sub("(.*)", var_pattern, x.group().lower()), url_address).replace(" ", "")
