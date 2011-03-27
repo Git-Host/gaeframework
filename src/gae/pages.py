@@ -28,13 +28,16 @@ class Pages:
             url = re.sub("([\?&])%s=[^&]*&?" % attr_name, "\\1", url).rstrip("&?")
         self.url = url
         self.attr_name = attr_name
-
+    
     def url_with_page_number(self, page_number):
         url = self.url
         if page_number <= 1: # not show parameter for the first page
             return url
         url = url + "&" if "?" in url else url + "?"
         return "%s%s=%s" % (url, self.attr_name, page_number)
+
+    def total_records(self):
+        return self.collection.count()
 
     def total_pages(self):
         return int(ceil(float(self.collection.count()) / self.on_page))
