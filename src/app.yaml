@@ -10,7 +10,7 @@ builtins:
 handlers:
 # cron jobs (allow to run only automatically)
 - url: /cron
-  script: apps/cron.py
+  script: apps/site/cron.py
   login: admin
 # serving static files: static/app_name/... -> apps/app_name/static/...
 - url: /static/(\w+)/(.*)
