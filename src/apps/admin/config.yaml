@@ -2,20 +2,20 @@ urls:
 - url:
   run: apps_list
 
-- url: :app_name
+- url: APP_NAME
   run: models_list
 
-- url: :app_name/:model_name
+- url: APP_NAME/MODEL_NAME
   run: model_records
 
-- url: :app_name/:model_name/new
+- url: APP_NAME/MODEL_NAME/new
   run: create_record
 
-- url: :app_name/:model_name/edit/:record_key
+- url: APP_NAME/MODEL_NAME/edit/RECORD_KEY
   run: edit_record
 
-- url: :app_name/:model_name/delete
+- url: APP_NAME/MODEL_NAME/delete
   run: delete_record
 
-- url: :app_name/:model_name/delete/:record_key
+- url: APP_NAME/MODEL_NAME/delete/RECORD_KEY
   run: delete_record

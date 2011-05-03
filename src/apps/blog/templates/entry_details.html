@@ -14,11 +14,11 @@
         <p>{{ entry.description|escape }}</p>
       {% endif %}
       <p class="last">
-        <b>Tags:</b>
+        <b>{% translate "Tags" %}:</b>
         {% for tag in entry.tags %}
           <a href="{% url blog.entries_list_tagged tags=tag %}">{{ tag }}</a>
         {% empty %}
-          <i>not defined</i>
+          <i>{% translate "not defined" %}</i>
         {% endfor %}
       </p>
     </blockquote>

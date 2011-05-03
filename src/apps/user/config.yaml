@@ -15,7 +15,7 @@ urls:
   run: registration
   tag: registration
 
-- url: :user
+- url: USER
   run: user_profile
   tag: user_profile
 

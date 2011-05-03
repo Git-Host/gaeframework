@@ -27,7 +27,7 @@ def entries_list(app, tags=None):
                       })
 
 def entry_details(app, entry):
-    entry_obj = get_object_or_404(Entity, entry)
+    entry_obj = get_object_or_404(Entity, slug=entry)
     return app.render('blog/entry_details', {
                       'entry': entry_obj})
 
@@ -47,7 +47,7 @@ def create_entry(app):
 
 @login_required()
 def edit_entry(app, entry):
-    entry_obj = get_object_or_404(Entity, entry)
+    entry_obj = get_object_or_404(Entity, slug=entry)
     if app.request.POST:
         # filled form
         form = EntityEditForm(data=app.request.POST, instance=entry_obj)
@@ -63,6 +63,6 @@ def edit_entry(app, entry):
 
 @login_required()
 def delete_entry(app, entry):
-    entry_obj = get_object_or_404(Entity, entry)
+    entry_obj = get_object_or_404(Entity, slug=entry)
     entry_obj.delete()
     return app.redirect("go back")

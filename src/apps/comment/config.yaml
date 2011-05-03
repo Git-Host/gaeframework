@@ -6,13 +6,13 @@ urls:
 #- url: comment/posted
 #  run: comment.comment_done
 
-#- url: comment/flag/:comment_id
+#- url: comment/flag/COMMENT_ID
 #  run: comment.flag
 
 #- url: comment/flagged
 #  run: comment.flag_done
 
-#- url: comment/delete/:comment_id
+#- url: comment/delete/COMMENT_ID
 #  run: comment.delete
 
 #- url: comment/deleted
@@ -21,7 +21,7 @@ urls:
 #- url: comment/moderate
 #  run: comment.moderation_queue
 
-#- url: comment/approve/:comment_id
+#- url: comment/approve/COMMENT_ID
 #  run: comment.approve
 
 #- url: comment/approved

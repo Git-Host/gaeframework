@@ -1,3 +1,3 @@
 urls:
-- url: :template
+- url: TEMPLATE
   run: render

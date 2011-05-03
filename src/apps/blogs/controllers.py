@@ -95,8 +95,8 @@ def entities_list(app, blog=None, tags=None):
                       })
 
 def entity_details(app, blog, entity):
-    blog_obj = get_object_or_404(Blog, blog)
-    entity_obj = get_object_or_404(Entity, "%s/%s" % (blog_obj.key().name(), entity))
+    blog_obj = get_object_or_404(Blog, slug=blog)
+    entity_obj = get_object_or_404(Entity, slug="%s/%s" % (blog_obj.key().name(), entity))
     # render page
     return app.render('blog/entity_details', {
                       'blog': blog_obj,
@@ -104,7 +104,7 @@ def entity_details(app, blog, entity):
 
 @login_required()
 def entity_create(app, blog):
-    blog_obj = get_object_or_404(Blog, blog)
+    blog_obj = get_object_or_404(Blog, slug=blog)
     if app.request.POST:
         form = EntityCreateForm(data=app.request.POST, initial={'blog': blog_obj})
         # filled form
@@ -119,8 +119,8 @@ def entity_create(app, blog):
 
 @login_required()
 def entity_edit(app, blog, entity):
-    blog_obj = get_object_or_404(Blog, blog)
-    entity_obj = get_object_or_404(Entity, "%s/%s" % (blog_obj.key().name(), entity))
+    blog_obj = get_object_or_404(Blog, slug=blog)
+    entity_obj = get_object_or_404(Entity, slug="%s/%s" % (blog_obj.key().name(), entity))
     if app.request.POST:
         # filled form
         form = EntityEditForm(data=app.request.POST, instance=entity_obj)
@@ -135,8 +135,8 @@ def entity_edit(app, blog, entity):
 
 @login_required()
 def entity_delete(app, blog, entity):
-    blog_obj = get_object_or_404(Blog, blog)
-    entity_obj = get_object_or_404(Entity, "%s/%s" % (blog_obj.key().name(), entity))
+    blog_obj = get_object_or_404(Blog, slug=blog)
+    entity_obj = get_object_or_404(Entity, slug="%s/%s" % (blog_obj.key().name(), entity))
     # delete blog entity
     entity_obj.delete()
     return app.redirect("go back")
