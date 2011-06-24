@@ -1,3 +1,0 @@
-urls:
-- url: city
-  run: cities_list
