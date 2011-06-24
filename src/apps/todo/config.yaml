@@ -1,6 +1,0 @@
-urls:
-- url:
-  run: todo_list
-
-- url: new
-  run: create_task
