@@ -91,9 +91,11 @@ def main(command, project_name, *args):
     Execute command
     '''
     if command == "run":
-        pass
+        os.system('appengine/dev_appserver.py %s' % project_name)
     elif command == "deploy":
-        pass
+        # compile templates
+        # deploy to server
+        os.system('appengine/appcfg.py update %s' % project_name)
     elif command == "debug":
         pass
     elif command == "new":

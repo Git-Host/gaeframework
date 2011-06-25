@@ -1,6 +1,12 @@
 from gae.tools import applications
 
 
+def index(request):
+    '''
+    Site home page
+    '''
+    return "Site home page!"
+
 def cron(request):
     '''
     Execute cron jobs for each application with file cron.py

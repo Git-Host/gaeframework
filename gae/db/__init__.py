@@ -1,7 +1,7 @@
 import os, logging
 from google.appengine.api import memcache
 from google.appengine.ext.db import *
-from gae import tools
+from gae.tools import monkey_patch
 
 
 class Model(Model):
@@ -118,7 +118,7 @@ class CachedModel:
         return field_value
 
 class Property(Property):
-    __metaclass__ = tools.monkey_patch
+    __metaclass__ = monkey_patch
 
     def validate(self, value):
         '''

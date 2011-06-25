@@ -6,8 +6,7 @@ urls:
 
    # homepage
  - url:
-   run: page.render
-   arg: {template: welcome}
+   run: site.index
 
 
 # site configuration
