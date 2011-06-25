@@ -1,6 +1,8 @@
 urls:
+
 - url:
-  run: controller_action
-  tag: tag_mane
+  run: index
+  tag: index
+
 
 # application specific configuration

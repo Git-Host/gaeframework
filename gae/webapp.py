@@ -10,7 +10,7 @@ from gae.sessions import get_current_session
 from gae.config import get_config
 from gae.tools import applications, prepare_url_vars
 from gae import template
-from apps.user import get_current_user
+from user import get_current_user
 
 
 class Environment:
@@ -81,9 +81,9 @@ class App:
         # get list of all models in each application
         for app_name in apps_list:
             try:
-                app_models = __import__("apps.%s.models" % app_name, {}, {}, ["models"])
+                app_models = __import__("%s.models" % app_name, {}, {}, ["models"])
             except ImportError, e:
-                logging.warning("File 'apps/%s/models.py' not load. %s" % (app_name, e))
+                logging.warning("File '%s/models.py' not load. %s" % (app_name, e))
                 continue
             models = [getattr(app_models, model_name) for model_name in dir(app_models) if not model_name.startswith("_") and model_name[0].isupper()]
             for model in models:
@@ -91,7 +91,9 @@ class App:
 
     @staticmethod
     def init_apps():
-        '''Load and initialize all available applications'''
+        '''
+        Load and initialize all available applications
+        '''
         # TODO: load models only for used applications (based on urls mapping)
         App.load_models(applications())
 
@@ -143,7 +145,7 @@ class RequestHandler(webapp.RequestHandler):
         self.app_name = app_name
         # check view
         try:
-            module = __import__("apps.%s.controllers" % self.app_name, {}, {}, ["controllers"])
+            module = __import__("%s.controllers" % self.app_name, {}, {}, ["controllers"])
             # get action handler
             app_action = getattr(module, app_view)
             # run action
@@ -204,9 +206,9 @@ class RequestHandler(webapp.RequestHandler):
             # use patched and new template tags
             template.register_template_library('gae.tags')
             # register template tags for each  application
-            for app_name in applications().keys():
+            for app_name in applications():
                 try:
-                    mod = __import__("apps.%s.tags" % app_name, globals(), {}, app_name)
+                    mod = __import__("%s.tags" % app_name, globals(), {}, app_name)
                     template.django.template.libraries[app_name] = mod.register
                 except ImportError, e:
                     pass

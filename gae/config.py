@@ -24,7 +24,7 @@ class Config:
             raise Exception, "For access to configuration please use get_config() function"
         Config._already_loaded = True
         # get list of configuration files
-        apps_configs = [(app_name, os.path.join(app_path, "config.yaml")) for app_name, app_path in applications().items()]
+        apps_configs = [(app_name, os.path.join(app_name, "config.yaml")) for app_name in applications()]
         # load configuration files
         for app_name, app_config in apps_configs:
             Config._apps_configs[app_name] = self._load_config(app_config)
@@ -40,8 +40,8 @@ class Config:
 
     def get(self, path, default_value=None):
         '''Return configuration by given options path.
-            1. look in file "apps/site/config.yaml" in section "apps"
-            2. else, look in file "apps/[app_name]/config.yaml"
+            1. look in file "site/config.yaml" in section "apps"
+            2. else, look in file "[app_name]/config.yaml"
             3. else, return default_value 
 
         Usage:
