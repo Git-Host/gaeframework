@@ -2,7 +2,7 @@
 '''
 Manage GAE framework projects.
 '''
-import os, sys
+import os, sys, fileinput
 from getopt import getopt
 from shutil import copyfile, copytree
 
@@ -13,7 +13,7 @@ Usage: %s <command>
 Commands:
  - run [project]                   : Run development server
  - deploy [project]                : Deploy project to server
- - debug [project]                 : Run project shell to debug project
+ - debug [project]                 : Run project shell to debug code
  - new [project]                   : Create new project
  - new [project].[application]     : Create new application in given project
  - test [project]                  : Run tests for project
@@ -34,6 +34,8 @@ def create_project(project_name):
     copytree(project_dir_source, project_dir_destination)
     # create symlink to gae framework directory
     os.symlink("../gae/", gae_destination)
+    # replace placeholder to project name
+    replace_text(project_dir_destination, "[project_name]", project_name, recurcive=True)
     print '%s project created' % project_name
     return True
 
@@ -49,6 +51,8 @@ def create_app(project_name, app_name):
         print '%s.%s application already exists' % (project_name, app_name)
         return False
     copytree(app_dir_source, app_dir_destination)
+    # replace placeholder to application name
+    replace_text(app_dir_destination, "[app_name]", app_name, recurcive=True)
     print '%s.%s application created' % (project_name, app_name)
     return True
 
@@ -65,6 +69,21 @@ def test_app(project_name, app_name):
     Run application tests
     '''
     pass
+
+
+def replace_text(path, find_me, replace_to, recurcive=False):
+    '''
+    Replace one text to another in all files in the given directory
+    '''
+    for file_name in os.listdir(path):
+        file_path = os.path.join(path, file_name)
+        if os.path.isdir(file_path) and not os.path.islink(file_path) and recurcive:
+            replace_text(file_path, find_me, replace_to, recurcive)
+        elif os.path.isfile(file_path):
+            for line in fileinput.FileInput(file_path, inplace=1):
+                line = line.replace(find_me, replace_to)
+                sys.stdout.write(line)
+    return True
 
 
 def main(command, project_name, *args):

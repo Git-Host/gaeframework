@@ -50,14 +50,14 @@ class LazyTranslate:
             LazyTranslate._translations[language] = {}
         # load translation for specified application
         if app_name not in LazyTranslate._translations[language]:
-            file = "apps/%s/translate/%s.yaml" % (app_name, language)
+            file = "%s/translate/%s.yaml" % (app_name, language)
             LazyTranslate._translations[language][app_name] = LazyTranslate.load_translation(file)
         # translate message in specified application
         if message in LazyTranslate._translations[language][app_name]:
             return LazyTranslate._translations[language][app_name][message]
         # load global site translation
         if "site" not in LazyTranslate._translations[language]:
-            file = "apps/%s/translate/%s.yaml" % ("site", language)
+            file = "%s/translate/%s.yaml" % ("site", language)
             LazyTranslate._translations[language]["site"] = LazyTranslate.load_translation(file)
         # translate message with global translation
         if message in LazyTranslate._translations[language]["site"]:

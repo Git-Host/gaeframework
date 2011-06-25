@@ -3,14 +3,20 @@ from google.appengine.api import memcache
 from google.appengine.ext.db import *
 from gae import tools
 
+
 class Model(Model):
+    '''
+    Base model class with additional features:
+     - adds application name to model class name
+     - allow compare two model instances by the key
+    '''
     @classmethod
     def kind(cls):
         '''Return class name in format <AppnameClassname>'''
-        # get application name from path "apps.app_name.models"
-        app_name = cls.__module__.split('.')[1].title()
+        # get application name from path "app_name.models"
+        app_name = cls.__module__.split('.')[0].title()
         # application name and model name have the same name like BlogBlog
-        if app_name == cls.__name__:
+        if app_name.lower() == cls.__name__.lower():
             return cls.__name__
         # add application name as prefix of model
         return "%s%s" % (app_name, cls.__name__)
@@ -277,7 +283,7 @@ class UserProperty(Property):
             the first time the entity is written to the datastore.
           indexed: Whether property is indexed.
         """
-        from apps.user.models import User
+        from user.models import User
         super(UserProperty, self).__init__(**kwargs)
         self.auto_current_user = auto_current_user
         self.auto_current_user_add = auto_current_user_add
@@ -306,7 +312,7 @@ class UserProperty(Property):
           implementation, since we don't support the 'default' keyword
           argument.)
         """
-        from apps.user import get_current_user
+        from user import get_current_user
         if self.auto_current_user or self.auto_current_user_add:
             return get_current_user()
         return None
@@ -319,7 +325,7 @@ class UserProperty(Property):
           else the default implementation.
         """
         user = None
-        from apps.user import get_current_user
+        from user import get_current_user
         if self.auto_current_user:
             user = get_current_user()
         else:

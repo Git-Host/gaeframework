@@ -1,5 +1,6 @@
 $(document).ready(function(){
-  // confirm deletion of item
+
+  /* Confirm operation (for all tags with class='confirm') */
   $(".confirm").live("click", function(){
     message = $(this).attr('title');
       if (! message) {
@@ -12,4 +13,5 @@ $(document).ready(function(){
         return false;
       }
   });
+
 });
