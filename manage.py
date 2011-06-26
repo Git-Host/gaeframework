@@ -11,13 +11,14 @@ def usage(app_name):
 Usage: %s <command>
 
 Commands:
- - run [project]                   : Run development server
- - deploy [project]                : Deploy project to server
- - debug [project]                 : Run project shell to debug code
- - new [project]                   : Create new project
- - new [project].[application]     : Create new application in given project
- - test [project]                  : Run tests for project
- - test [project].[application]    : Run tests for application in given project""" % app_name
+ - run [project]             : Run development server
+ - deploy [project]          : Deploy project to server
+ - debug [project]           : Run project shell to debug code
+ - new [project]             : Create new project
+ - new [project].[app]       : Create new application in given project
+ - install [project].[app]   : Create symlink to common application in given project
+ - test [project]            : Run tests for project
+ - test [project].[app]      : Run tests for application in given project""" % app_name
 
 
 def create_project(project_name):
