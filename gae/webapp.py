@@ -3,7 +3,9 @@ from google.appengine.dist import use_library
 use_library('django', '1.2')
 
 from google.appengine.ext import webapp
+from gae.sessions import SessionMiddleware
 from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.ext.appstats import recording
 from google.appengine.ext import db
 from django.conf import settings as django_settings
 from gae.sessions import get_current_session
@@ -44,6 +46,10 @@ class Environment:
 
     def previous_page(self):
         '''Return previous page address'''
+        pass
+
+    def render(self, template_name, variables={}):
+        '''Return current logged-in user'''
         pass
 
 
@@ -141,7 +147,9 @@ class RequestHandler(webapp.RequestHandler):
         return frames
 
     def load_app(self, app_name='index', app_view='index', params={}):
-        '''Load application'''
+        '''
+        Load application
+        '''
         self.app_name = app_name
         # check view
         try:
@@ -346,5 +354,8 @@ def run(project_dir):
     # auto detect environment (development or production)
     debug = os.environ['SERVER_SOFTWARE'].startswith('Development')
     RequestHandler.debug = debug
-    handler = webapp.WSGIApplication([('/.*', RequestHandler)], debug=debug)
-    run_wsgi_app(handler)
+    COOKIE_KEY = 'my_private_key_used_for_this_site_%s' % os.environ['APPLICATION_ID']
+    app = webapp.WSGIApplication([('/.*', RequestHandler)], debug=debug)
+    app = SessionMiddleware(app, cookie_key=COOKIE_KEY, cookie_only_threshold=0)
+    app = recording.appstats_wsgi_middleware(app)
+    run_wsgi_app(app)
