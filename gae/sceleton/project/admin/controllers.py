@@ -1,5 +1,5 @@
 '''
-Administration panel.
+Site aministration
 '''
 import os
 from gae import forms
