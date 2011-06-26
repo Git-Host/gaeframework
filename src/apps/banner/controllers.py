@@ -1,3 +1,0 @@
-'''
-Advertising application.
-'''

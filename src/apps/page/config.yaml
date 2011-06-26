@@ -1,3 +1,0 @@
-urls:
-- url: TEMPLATE
-  run: render
