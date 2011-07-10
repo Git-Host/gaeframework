@@ -5,7 +5,7 @@ To create new release we need foolow next steps:
   Read more: http://docs.python.org/distutils/packageindex.html
 - ./setup.py sdist --formats=gztar,zip 
   Read more: http://docs.python.org/distutils/sourcedist.html
-- ./setup.py sdist upload
+- ./setup.py sdist --formats=gztar,zip  upload 
   Read more: http://docs.python.org/distutils/uploading.html
 '''
 from setuptools import setup, find_packages
@@ -38,12 +38,12 @@ with open('README') as file:
 
 setup(
     name = "gaeframework",
-    version = "2.0.2",
+    version = "2.0.3",
     author = "Anton Danilchenko",
     author_email = "anton.danilchenko@gaeframework.com",
     description = "GAE framework is a Python web framework for use on Google App Engine",
     long_description = long_description,
-    download_url = "http://gaeframework.googlecode.com/files/gaeframework-2.0.2.zip",
+    download_url = "http://gaeframework.googlecode.com/files/gaeframework-2.0.3.zip",
     url = "http://wwww.gaeframework.com",
     packages = find_packages(),
     include_package_data = True,
