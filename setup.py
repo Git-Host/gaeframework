@@ -1,7 +1,14 @@
 #!/usr/bin/env python
-#from distutils.core import setup
+'''
+To create new release we need foolow next steps:
+- ./setup.py register
+  Read more: http://docs.python.org/distutils/packageindex.html
+- ./setup.py sdist --formats=gztar,zip 
+  Read more: http://docs.python.org/distutils/sourcedist.html
+- ./setup.py sdist upload
+  Read more: http://docs.python.org/distutils/uploading.html
+'''
 from setuptools import setup, find_packages
-#from distutils.command.install_data import install_data
 import os
 import sys
 
@@ -31,21 +38,16 @@ with open('README') as file:
 
 setup(
     name = "gaeframework",
-    version = "2.0.1",
+    version = "2.0.2",
     author = "Anton Danilchenko",
     author_email = "anton.danilchenko@gaeframework.com",
-    description = "GAE framework is a Python web application framework for use on Google App Engine",
+    description = "GAE framework is a Python web framework for use on Google App Engine",
     long_description = long_description,
-    download_url = "http://gaeframework.googlecode.com/files/gaeframework-2.0.1.zip",
+    download_url = "http://gaeframework.googlecode.com/files/gaeframework-2.0.2.zip",
     url = "http://wwww.gaeframework.com",
-#    packages = packages,
     packages = find_packages(),
-#    data_files = data_files,
     include_package_data = True,
     zip_safe=False,
-#    package_data = {
-#        '': ['*.txt', '*.yaml', '*.*', 'VERSION'],
-#    },
     scripts = ['gae-manage.py'],
     classifiers=['Development Status :: 4 - Beta',
                 'Environment :: Web Environment',
