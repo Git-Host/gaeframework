@@ -2,7 +2,7 @@
 '''
 Manage GAE framework projects.
 '''
-import os, sys, fileinput
+import os, sys, fileinput, gae
 from getopt import getopt
 from shutil import copyfile, copytree
 
@@ -16,17 +16,18 @@ Commands:
  - debug [project]           : Run project shell to debug code
  - new [project]             : Create new project
  - new [project].[app]       : Create new application in given project
- - install [project].[app]   : Create symlink to common application in given project
+ - install [project].[app]   : Create symlink to application into 'apps'.
  - test [project]            : Run tests for project
  - test [project].[app]      : Run tests for application in given project""" % app_name
 
+gae_dir = os.path.dirname(gae.__file__)
 
 def create_project(project_name):
     '''
     Create new project (if not exists)
     '''
     gae_destination = os.path.join(os.getcwd(), project_name, 'gae')
-    project_dir_source = os.path.join(os.getcwd(), 'gae', 'sceleton', 'project')
+    project_dir_source = os.path.join(gae_dir, 'sceleton', 'project')
     project_dir_destination = os.path.join(os.getcwd(), project_name)
     # copy project directory
     if os.path.exists(project_dir_destination):
@@ -34,10 +35,12 @@ def create_project(project_name):
         return False
     copytree(project_dir_source, project_dir_destination)
     # create symlink to gae framework directory
-    os.symlink("../gae/", gae_destination)
+    os.symlink(gae_dir, gae_destination)
     # replace placeholder to project name
     replace_text(project_dir_destination, "[project_name]", project_name, recurcive=True)
     print '%s project created' % project_name
+    # inslatt required applications
+    install_app(project_name, 'user')
     return True
 
 
@@ -45,7 +48,7 @@ def create_app(project_name, app_name):
     '''
     Create new application (if not exists)
     '''
-    app_dir_source = os.path.join(os.getcwd(), 'gae', 'sceleton', 'app')
+    app_dir_source = os.path.join(gae_dir, 'sceleton', 'app')
     app_dir_destination = os.path.join(os.getcwd(), project_name, app_name)
     # copy application directory
     if os.path.exists(app_dir_destination):
@@ -55,6 +58,26 @@ def create_app(project_name, app_name):
     # replace placeholder to application name
     replace_text(app_dir_destination, "[app_name]", app_name, recurcive=True)
     print '%s.%s application created' % (project_name, app_name)
+    return True
+
+
+def install_app(project_name, app_name):
+    '''
+    Create symlink to application located in 'apps' package (if this application not installed)
+    '''
+    app_dir_source = os.path.join(os.path.dirname(gae_dir), 'apps', app_name)
+    app_dir_destination = os.path.join(os.getcwd(), project_name, app_name)
+    # check application in 'apps' package
+    if not os.path.exists(app_dir_source):
+        print '%s application not available to installation' % app_name
+        return False
+    # check application in the project
+    if os.path.exists(app_dir_destination):
+        print '%s.%s application already installed' % (project_name, app_name)
+        return False
+    # create symlink to application
+    os.symlink(app_dir_source, app_dir_destination)
+    print '%s.%s application installed' % (project_name, app_name)
     return True
 
 
@@ -92,11 +115,11 @@ def main(command, project_name, *args):
     Execute command
     '''
     if command == "run":
-        os.system('appengine/dev_appserver.py %s' % project_name)
+        os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'dev_appserver.py %s') % project_name)
     elif command == "deploy":
-        # compile templates
+        # compile templates (Jinja2, Closure)
         # deploy to server
-        os.system('appengine/appcfg.py update %s' % project_name)
+        os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'appcfg.py update %s') % project_name)
     elif command == "debug":
         pass
     elif command == "new":
@@ -106,6 +129,13 @@ def main(command, project_name, *args):
             create_app(project_name, app_name)
         except ValueError:
             create_project(project_name)
+    elif command == "install":
+        try:
+            project_name, app_name = project_name.split('.', 1)
+            create_project(project_name)
+            install_app(project_name, app_name)
+        except ValueError:
+            raise Exception("Please, specify application name in style 'gae-manage.py install project_name.app_name'")
     elif command == "test":
         try:
             project_name, app_name = project_name.split('.', 1)
