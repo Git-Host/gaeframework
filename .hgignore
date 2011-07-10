@@ -1,0 +1,7 @@
+
+syntax: regexp
+^google_appengine$
+syntax: regexp
+^gaeframework\.egg-info$
+syntax: regexp
+^dist$
