@@ -2,9 +2,27 @@
 '''
 Manage GAE framework projects.
 '''
-import os, sys, fileinput, gae
+import os, sys, fileinput, code, getpass, gae
 from getopt import getopt
 from shutil import copyfile, copytree
+gae_dir = os.path.dirname(gae.__file__)
+appengine_dir = os.path.join(os.path.dirname(gae_dir), 'google_appengine')
+EXTRA_PATHS = [
+  appengine_dir,
+  os.path.join(appengine_dir, 'lib', 'antlr3'),
+  os.path.join(appengine_dir, 'lib', 'fancy_urllib'),
+  os.path.join(appengine_dir, 'lib', 'ipaddr'),
+  os.path.join(appengine_dir, 'lib', 'protorpc'),
+  os.path.join(appengine_dir, 'lib', 'webob'),
+  os.path.join(appengine_dir, 'lib', 'yaml', 'lib'),
+  os.path.join(appengine_dir, 'lib', 'simplejson'),
+  os.path.join(appengine_dir, 'lib', 'graphy'),
+]
+sys.path = EXTRA_PATHS + sys.path
+from google.appengine.ext.remote_api import remote_api_stub
+from google.appengine.ext import db
+import yaml
+
 
 def usage(app_name):
     return """
@@ -13,14 +31,13 @@ Usage: %s <command>
 Commands:
  - run [project]             : Run development server
  - deploy [project]          : Deploy project to server
- - debug [project]           : Run project shell to debug code
+ - debug [project]           : Run project shell to debug code (pass --remote to work with server datastore)
  - new [project]             : Create new project
  - new [project].[app]       : Create new application in given project
  - install [project].[app]   : Create symlink to application into 'apps'.
  - test [project]            : Run tests for project
  - test [project].[app]      : Run tests for application in given project""" % app_name
 
-gae_dir = os.path.dirname(gae.__file__)
 
 def create_project(project_name):
     '''
@@ -81,6 +98,34 @@ def install_app(project_name, app_name):
     return True
 
 
+def debug_project(project_name, remote=False):
+    '''
+    Run project shell to debug code (pass --remote to work with server datastore)
+    '''
+    project_dir = os.path.join(os.getcwd(), project_name)
+    if remote:
+        def auth_func():
+            return raw_input('Username:'), getpass.getpass('Password:')
+        
+        try:
+            config_file = os.path.join(project_dir, 'app.yaml')
+            fd = open(config_file)
+            config = yaml.load(fd)
+            fd.close()
+        except:
+            raise Exception("Configuration file '%s' not found" % config_file)
+        
+        app_id = config.get('application')
+        host = '%s.appspot.com' % app_id
+        print "Connect to %s" % host
+        print sys.path
+        os.chdir(project_dir)
+        os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'remote_api_shell.py -s %s') % host)
+    else:
+        pass
+    return True
+
+
 def test_project(project_name):
     '''
     Run project tests
@@ -114,6 +159,7 @@ def main(command, project_name, *args):
     '''
     Execute command
     '''
+    sys.path.insert(0, os.path.join(os.getcwd(), project_name))
     if command == "run":
         os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'dev_appserver.py %s') % project_name)
     elif command == "deploy":
@@ -121,7 +167,7 @@ def main(command, project_name, *args):
         # deploy to server
         os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'appcfg.py update %s') % project_name)
     elif command == "debug":
-        pass
+        debug_project(project_name, remote=True)
     elif command == "new":
         try:
             project_name, app_name = project_name.split('.', 1)
