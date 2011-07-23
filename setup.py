@@ -44,7 +44,7 @@ setup(
     description = "GAE framework is a Python web framework for use on Google App Engine",
     long_description = long_description,
     download_url = "http://gaeframework.googlecode.com/files/gaeframework-2.0.3.zip",
-    url = "http://wwww.gaeframework.com",
+    url = "http://www.gaeframework.com",
     packages = find_packages(),
     include_package_data = True,
     zip_safe=False,
