@@ -15,15 +15,23 @@ from gae import template
 from user import get_current_user
 
 
-class Environment:
+class Request:
+    '''
+    User request with an real environment with a POST and GET dicts,
+    SESSION and USER objects and additional tools to use around the
+    controllers.
+    '''
+    instance = None
     session = None
-    SESSION = None
     user = None
 
     def __init__(self):
         self.user = get_current_user()
         self.session = get_current_session()
-        self.SESSION = self.session
+        # singleton
+        if self.instance is not None:
+            raise Exception("Request object was already initialized")
+        self.instance = self
 
     def get(self, key_name=None):
         '''Return GET parameters'''
@@ -33,11 +41,8 @@ class Environment:
         '''Return POST parameters'''
         pass
 
-    GET = get
-    POST = post
-
-    def error(self):
-        '''Save error message'''
+    def log(self):
+        '''Save logging message'''
         pass
 
     def redirect(self, to_page, permanent=False):
@@ -49,7 +54,11 @@ class Environment:
         pass
 
     def render(self, template_name, variables={}):
-        '''Return current logged-in user'''
+        '''Render given template with a given variables dict'''
+        pass
+
+    def is_ajax(self):
+        '''Return True if given request initialized via AJAX call'''
         pass
 
 
@@ -345,6 +354,12 @@ instance = RequestHandler
 def inst():
     global instance
     return instance
+
+def get_request():
+    '''
+    @rtype: Request
+    '''
+    return Request.instance
 
 def run(project_dir):
     # set application global configuration

@@ -32,15 +32,3 @@ class User(db.UniqueModel, db.Model):
             role = name[3:]
             return self.has_role(role)
         raise AttributeError
-
-    def __eq__(self, other):
-        # compare only two User objects
-        if not isinstance(other, User):
-            return False
-        # compare only User Key
-        try:
-            if self.key() == other.key():
-                return True
-        except Exception:
-            pass
-        return False

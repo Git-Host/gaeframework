@@ -103,26 +103,27 @@ def debug_project(project_name, remote=False):
     Run project shell to debug code (pass --remote to work with server datastore)
     '''
     project_dir = os.path.join(os.getcwd(), project_name)
+    try:
+        config_file = os.path.join(project_dir, 'app.yaml')
+        fd = open(config_file)
+        config = yaml.load(fd)
+        fd.close()
+        app_id = config.get('application')
+    except:
+        raise Exception("Configuration file '%s' not found" % config_file)
+    
     if remote:
         def auth_func():
-            return raw_input('Username:'), getpass.getpass('Password:')
+            print "Authenticate on Google App Engine server"
+            return raw_input('Username: '), getpass.getpass('Password: ')
         
-        try:
-            config_file = os.path.join(project_dir, 'app.yaml')
-            fd = open(config_file)
-            config = yaml.load(fd)
-            fd.close()
-        except:
-            raise Exception("Configuration file '%s' not found" % config_file)
-        
-        app_id = config.get('application')
         host = '%s.appspot.com' % app_id
-        print "Connect to %s" % host
-        print sys.path
         os.chdir(project_dir)
-        os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'remote_api_shell.py -s %s') % host)
+        
+        remote_api_stub.ConfigureRemoteDatastore(app_id, '/_ah/remote_api', auth_func, host)
+        code.interact('App Engine interactive console for %s' % host, None, locals())
     else:
-        pass
+        code.interact('App Engine interactive console for %s' % app_id, None, locals())
     return True
 
 
@@ -159,6 +160,7 @@ def main(command, project_name, *args):
     '''
     Execute command
     '''
+    project_name = project_name.strip(' /\\') # delete slash around project name
     sys.path.insert(0, os.path.join(os.getcwd(), project_name))
     if command == "run":
         os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'dev_appserver.py %s') % project_name)
@@ -167,7 +169,8 @@ def main(command, project_name, *args):
         # deploy to server
         os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'appcfg.py update %s') % project_name)
     elif command == "debug":
-        debug_project(project_name, remote=True)
+        pass
+#        debug_project(project_name, remote=True)
     elif command == "new":
         try:
             project_name, app_name = project_name.split('.', 1)
