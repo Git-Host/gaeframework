@@ -3,7 +3,6 @@
 Manage GAE framework projects.
 '''
 import os, sys, fileinput, code, getpass, gae
-from getopt import getopt
 from shutil import copyfile, copytree
 gae_dir = os.path.dirname(gae.__file__)
 appengine_dir = os.path.join(os.path.dirname(gae_dir), 'google_appengine')
@@ -29,14 +28,15 @@ def usage(app_name):
 Usage: %s <command>
 
 Commands:
- - run [project]             : Run development server
- - deploy [project]          : Deploy project to server
- - debug [project]           : Run project shell to debug code (pass --remote to work with server datastore)
- - new [project]             : Create new project
- - new [project].[app]       : Create new application in given project
- - install [project].[app]   : Create symlink to application into 'apps'.
- - test [project]            : Run tests for project
- - test [project].[app]      : Run tests for application in given project""" % app_name
+  run [project]             Run development server.
+  deploy [project]          Deploy project to server.
+  debug [project]           Run project shell to debug code.
+      --remote              Work with remote datastore (on server).
+  new [project]             Create new project.
+  new [project].[app]       Create new application in given project.
+  install [project].[app]   Create symlink to application into 'apps'.
+  test [project]            Run tests for project.
+  test [project].[app]      Run tests for application in given project.""" % app_name
 
 
 def create_project(project_name):
@@ -169,8 +169,8 @@ def main(command, project_name, *args):
         # deploy to server
         os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'appcfg.py update %s') % project_name)
     elif command == "debug":
-        pass
-#        debug_project(project_name, remote=True)
+        remote = "--remote" in args
+        debug_project(project_name, remote=remote)
     elif command == "new":
         try:
             project_name, app_name = project_name.split('.', 1)
