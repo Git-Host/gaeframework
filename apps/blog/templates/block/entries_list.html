@@ -1,4 +1,4 @@
-{% load comment %}
+{% load blog %}
 
 {% for entry in entries %}
   {% get_comment_count for entry as comment_count %}
@@ -22,4 +22,4 @@
   {% translate "No entries" %}
 {% endfor %}
 
-{% show_pages entries %}
+{% pagination entries %}

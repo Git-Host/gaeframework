@@ -24,19 +24,16 @@ class Config:
             raise Exception, "For access to configuration please use get_config() function"
         Config._already_loaded = True
         # get list of configuration files
-        apps_configs = [(app_name, os.path.join(app_name, "config.yaml")) for app_name in installed_apps()]
+        apps_configs = [(app_name, os.path.abspath(os.path.join(app_name, "config.yaml"))) for app_name in installed_apps()]
         # load configuration files
         for app_name, app_config in apps_configs:
             Config._apps_configs[app_name] = self._load_config(app_config)
 
     def _load_config(self, config_file):
-        try:
-            fd = open(config_file)
-            config = yaml.load(fd)
-            fd.close()
-            return config
-        except:
-            raise Exception("Configuration file '%s' not found" % config_file)
+        fd = open(config_file)
+        config = yaml.load(fd)
+        fd.close()
+        return config
 
     def get(self, path, default_value=None):
         '''Return configuration by given options path.

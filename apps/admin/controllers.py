@@ -3,7 +3,7 @@ Site aministration
 '''
 import os
 from gae import forms
-from gae.pages import Pages
+from gae.tools.pagination import Pagination
 from user import login_required
 from gae.tools import installed_apps
 
@@ -73,7 +73,7 @@ def model_records(request, app_name, model_name):
         'managed_app': app_name,
         'model': model_name,
         'model_name': hasattr(config, "name") and config.name or model_name,
-        'records': Pages(items, 20),
+        'records': Pagination(request, items, 20),
         'fields': fields
         })
 

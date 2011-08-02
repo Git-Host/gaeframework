@@ -1,11 +1,12 @@
 version: 1.0
 
 urls:
+
 - url:
   run: entries_list
   tag: entries_list
 
-- url: tag/TAGS
+- url: tag/(tags)
   run: entries_list
   tag: entries_list_tagged
 
@@ -13,15 +14,15 @@ urls:
   run: create_entry
   tag: create_entry
 
-- url: ENTRY/edit
+- url: (entry)/edit
   run: edit_entry
   tag: edit_entry
 
-- url: ENTRY/delete
+- url: (entry)/delete
   run: delete_entry
   tag: delete_entry
 
-- url: ENTRY
+- url: (entry)
   run: entry_details
   tag: entry_details
 

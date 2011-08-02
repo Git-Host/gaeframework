@@ -1,4 +1,5 @@
 urls:
+
 - url:
   run: users_list
   tag: users_list
@@ -15,7 +16,7 @@ urls:
   run: registration
   tag: registration
 
-- url: USER
+- url: (user)
   run: user_profile
   tag: user_profile
 
