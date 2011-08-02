@@ -5,7 +5,7 @@ from django.template.defaultfilters import stringfilter
 from django.template.defaulttags import LoadNode
 from django.template import get_library
 from django import template as django_template
-from gae.translation import translate as _
+from gae.tools.translation import translate as _
 from gae.config import get_config
 from gae.tools import prepare_url_vars
 
@@ -181,10 +181,10 @@ def debug(content):
 
 @register.tag
 @node_rule(BaseNode, ('[paginator]',))
-def show_pages(self, context):
+def pagination(self, context):
     '''Return pagination links'''
     paginator = self.get_var(context, self.paginator)
-    return template.render('common/show_pages.html', {"paginator": paginator})
+    return template.render('block/pagination.html', {"paginator": paginator})
 
 from gae.template.tag_elif import do_if
 register.tag("if", do_if)

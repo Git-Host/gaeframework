@@ -1,3 +1,4 @@
 urls:
-- url: TEMPLATE
+
+- url: (template)
   run: render

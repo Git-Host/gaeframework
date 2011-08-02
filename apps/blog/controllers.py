@@ -1,7 +1,7 @@
 '''
 Blogs - multiple blogs in one application
 ''' 
-from gae.pages import Pages
+from gae.tools.pagination import Pagination
 from gae.shortcuts import get_object_or_404
 from user import login_required
 from blog.models import Entity
@@ -23,7 +23,7 @@ def entries_list(request, tags=None):
         entries.filter('active', True)
     # render page
     return request.render('blog/entries_list', {
-                      'entries': Pages(entries, 10, "entries_page"),
+                      'entries': Pagination(request, entries, 10, "entries_page"),
                       })
 
 def entry_details(request, entry):

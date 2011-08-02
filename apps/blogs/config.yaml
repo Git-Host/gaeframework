@@ -8,28 +8,28 @@ urls:
 - url: new
   run: blog_create
 
-- url: BLOG/edit
+- url: (blog)/edit
   run: blog_edit
 
-- url: BLOG/delete
+- url: (blog)/delete
   run: blog_delete
 
-- url: BLOG/new
+- url: (blog)/new
   run: entity_create
 
-- url: BLOG/ENTRY/edit
+- url: (blog)/(entry)/edit
   run: entity_edit
 
-- url: BLOG/ENTRY/delete
+- url: (blog)/(entry)/delete
   run: entity_delete
 
-- url: BLOG
+- url: (blog)
   run: entities_list
 
-- url: BLOG/tag/TAGS
+- url: (blog)/tag/(tags)
   run: entities_list
 
-- url: BLOG/ENTRY
+- url: (blog)/(entry)
   run: entity_details
 
 # application specific configuration

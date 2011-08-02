@@ -1,5 +1,5 @@
 from google.appengine.ext.db import djangoforms
-from gae.translation import translate as _
+from gae.tools.translation import translate as _
 from gae import tools
 import re
 try:

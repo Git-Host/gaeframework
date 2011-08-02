@@ -6,7 +6,7 @@ from gae.shortcuts import get_object_or_404
 from blog.models import Blog, Entity
 from blog.forms import BlogCreateForm, BlogEditForm,\
                             EntityCreateForm, EntityEditForm
-from gae.pages import Pages
+from gae.tools.pagination import Pagination
 
 ''' operations with blogs '''
 
@@ -24,7 +24,7 @@ def blogs_list(request):
         blogs.filter('active', True)
     # render page
     return request.render('blog/blogs_list', {
-                      'blogs': Pages(blogs, 20, "blogs_page"),
+                      'blogs': Pagination(request, blogs, 20, "blogs_page"),
                       })
 
 @login_required()
@@ -91,7 +91,7 @@ def entities_list(request, blog=None, tags=None):
     # render page
     return request.render('blog/entities_list', {
                       'blog': blog_obj,
-                      'entities': Pages(entities, 20, "entities_page"),
+                      'entities': Pagination(request, entities, 20, "entities_page"),
                       })
 
 def entity_details(request, blog, entity):

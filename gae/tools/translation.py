@@ -1,4 +1,4 @@
-import yaml, logging, sys
+import yaml, logging
 from gae.config import get_config
 
 __all__ = ["translate", "_", "get_language", "get_available_languages", "set_language"]
@@ -34,7 +34,7 @@ class LazyTranslate:
         self.app = app_name
 
     def __str__(self):
-        return self.translate(self.msg, self.app or sys.modules["gae.webapp"].instance.app_name)
+        return self.translate(self.msg, self.app)
 
     def __unicode__(self):
         return self.__str__()#.encode('utf-8')
