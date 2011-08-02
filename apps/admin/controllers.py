@@ -5,7 +5,7 @@ import os
 from gae import forms
 from gae.pages import Pages
 from user import login_required
-from gae.tools import applications
+from gae.tools import installed_apps
 
 """
 TODO: hide in SelfReferenceProperty option reference to current object
@@ -28,32 +28,32 @@ def _models_list(app_name):
     return models
 
 @login_required('admin')
-def apps_list(app):
+def apps_list(request):
     '''
     Show list of applications with enabled administrative interface and all models in each application.
     '''
     # get list of all applications with admin.py file
-    apps = [appname for appname in applications() if os.path.exists(os.path.join(appname, 'admin.py'))]
+    apps = [appname for appname in installed_apps() if os.path.exists(os.path.join(appname, 'admin.py'))]
     apps_models = []
     # get list of all models in each application
     for app_name in apps:
         apps_models.append((app_name, _models_list(app_name)))
-    return app.render("admin/apps_list", {
+    return request.render("admin/apps_list", {
         'apps': apps_models,
         })
 
 @login_required('admin')
-def models_list(app, app_name):
+def models_list(request, app_name):
     '''
     Show list of objects in specified application.
     '''
-    return app.render('admin/models_list', {
+    return request.render('admin/models_list', {
         'managed_app': app_name,
         'models': _models_list(app_name),
         })
 
 @login_required('admin')
-def model_records(app, app_name, model_name):
+def model_records(request, app_name, model_name):
     '''
     Show list of records in model.
 
@@ -69,7 +69,7 @@ def model_records(app, app_name, model_name):
     model = inline_form.Meta.model
     fields = [{'name': field_name, 'type': getattr(model, field_name).__class__.__name__[0:-8]} for field_name in inline_form().fields.keys()]
     items = model.all() # get list of records
-    return app.render('admin/model_records', {
+    return request.render('admin/model_records', {
         'managed_app': app_name,
         'model': model_name,
         'model_name': hasattr(config, "name") and config.name or model_name,
@@ -78,27 +78,27 @@ def model_records(app, app_name, model_name):
         })
 
 @login_required('admin')
-def create_record(app, app_name, model_name):
+def create_record(request, app_name, model_name):
     # load model
     config = _load_config(app_name, model_name)
     Form = config.forms[0]
     Model = Form.Meta.model
     # handle form
-    if app.request.POST:
+    if request.POST:
         # filled form
-        form = Form(data=app.request.POST)
+        form = Form(data=request.POST)
         if form.is_valid():
             if hasattr(config, "before_save"):
                 config.before_save()
             record = form.save()
             if hasattr(config, "after_save"):
                 config.after_save(record)
-            return app.redirect("go back")
+            return request.redirect("go back")
     # empty form
     else:
         form = Form()
     # render page
-    return app.render('admin/create_record', {
+    return request.render('admin/create_record', {
         'managed_app': app_name,
         'model': model_name,
         'model_name': hasattr(config, "name") and config.name or model_name,
@@ -106,7 +106,7 @@ def create_record(app, app_name, model_name):
         })
 
 @login_required('admin')
-def edit_record(app, app_name, model_name, record_key):
+def edit_record(request, app_name, model_name, record_key):
     # load model
     config = _load_config(app_name, model_name)
     Form = config.forms[0]
@@ -115,23 +115,23 @@ def edit_record(app, app_name, model_name, record_key):
     record = Model.get(record_key)
     # record not found
     if record is None:
-        return app.error(404)
+        return request.error(404)
     # handle form
-    if app.request.POST:
+    if request.POST:
         # filled form
-        form = Form(data=app.request.POST, instance=record)
+        form = Form(data=request.POST, instance=record)
         if form.is_valid():
             if hasattr(config, "before_change"):
                 config.before_change(record)
             form.save()
             if hasattr(config, "after_change"):
                 config.after_change(record)
-            return app.redirect("go back")
+            return request.redirect("go back")
     # empty form
     else:
         form = Form(instance=record)
     # render page
-    return app.render('admin/edit_record', {
+    return request.render('admin/edit_record', {
         'managed_app': app_name,
         'model': model_name,
         'model_name': hasattr(config, "name") and config.name or model_name,
@@ -140,10 +140,10 @@ def edit_record(app, app_name, model_name, record_key):
         })
 
 @login_required('admin')
-def delete_record(app, app_name, model_name, record_key=None):
+def delete_record(request, app_name, model_name, record_key=None):
     if record_key is None:
         # get records id from POST request
-        record_keys = app.request.get_all("record_key")
+        record_keys = request.get_all("record_key")
     else:
         # use one record key passed to query string
         record_keys = [record_key]
@@ -163,4 +163,4 @@ def delete_record(app, app_name, model_name, record_key=None):
             record.delete()
             if hasattr(config, "after_delete"):
                 config.after_delete()
-    return app.redirect("go back")
+    return request.redirect("go back")

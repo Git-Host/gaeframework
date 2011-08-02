@@ -4,15 +4,15 @@ import os, re
 #from gae import webapp
 
 
-_applications = None
-def applications():
+_installed_apps = None
+def installed_apps():
     '''
-    Return list of all available applications
+    Return list of installed applications.
     '''
-    global _applications
-    if _applications is None:
-        _applications = [app for app in os.listdir('.') if os.path.isdir(app) and not app.startswith("_") and app != 'gae']
-    return _applications
+    global _installed_apps
+    if not _installed_apps:
+        _installed_apps = [app for app in os.listdir('.') if os.path.isdir(app) and not app.startswith("_") and app != 'gae']
+    return _installed_apps
 
 
 def monkey_patch(name, bases, namespace):
@@ -26,13 +26,13 @@ def monkey_patch(name, bases, namespace):
 
 def prepare_url_vars(url_address, var_pattern="(?P<\\1>[^/]+)"):
     '''
-    Return url address with replaced variables from UPPER_NAME to specified pattern in lower_name style.
+    Return url address with replaced variables to regex pattern.
     
     Examples:
-        blog/BLOG_SLUG/new -> blog/%(blog_slug)s/new
-        blog/category:CATEGORY_SLUG -> blog/category:(?P<category_slug>[^/]+)
+        blog/[blog_slug]/new -> blog/%(blog_slug)s/new
+        blog/category:[category_slug] -> blog/category:(?P<category_slug>[^/]+)
     '''
-    return re.sub("([A-Z][A-Z0-9_]*)", lambda x: re.sub("(.*)", var_pattern, x.group().lower()), url_address).replace(" ", "")
+    return re.sub("(\[[a-z][a-z0-9_]*(:[a-z]+)\])", lambda x: re.sub("(.*)", var_pattern, x.group()), url_address).replace(" ", "")
 
 
 class PaginationException(Exception):

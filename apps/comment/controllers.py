@@ -7,14 +7,14 @@ from gae import db
 import re
 
 @login_required()
-def create_comment(app):
+def create_comment(request):
     """
     Create a comment.
 
     HTTP POST is required. If ``POST['submit'] == "preview"`` or if there are
     errors a preview template, ``comment/preview.html``, will be rendered.
     """
-    data = app.request.POST.copy()
+    data = request.POST.copy()
     if data:
         # get object model name
         object_key = db.Key(data['obj'])
@@ -30,9 +30,9 @@ def create_comment(app):
         form = UserCommentForm(data=data, initial={"obj": object_key})
         # preview the comment
         if "preview" in data or not form.is_valid():
-            return app.render('comments/preview', {
+            return request.render('comments/preview', {
                               "form":     form,
                               "comment":  form.data.get("text", ""),
                               })
         form.save()
-    return app.redirect("go back")
+    return request.redirect("go back")

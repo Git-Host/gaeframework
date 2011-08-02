@@ -7,16 +7,16 @@ def get_current_user():
     '''Return current user; otherwise return unautorized user object'''
     session = get_current_session()
     if "user" not in session:
-        return None # TODO: return anonimous User() object
+        return None # TODO: return anonymous User() object
     return session['user']
 
-def get_login_url(back_url):
+def get_login_url(previous_page):
     '''Return url for user login'''
-    return "/user/login?back_url=%s" % back_url
+    return "/user/login?previous_page=%s" % previous_page
 
-def get_logout_url(back_url):
+def get_logout_url(previous_page):
     '''Return url for user logout'''
-    return "/user/logout?back_url=%s" % back_url
+    return "/user/logout?previous_page=%s" % previous_page
 
 def login_required(*roles):
     '''

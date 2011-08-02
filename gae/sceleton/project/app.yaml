@@ -8,8 +8,10 @@ builtins:
 - remote_api: on
 - appstats: on
 
-handlers:
+inbound_services:
+- warmup
 
+handlers:
   # site favicon
 - url: /favicon.ico
   static_files: site/static/img/favicon.ico
@@ -19,6 +21,10 @@ handlers:
 - url: /static/(\w+)/(.*)
   static_files: \1/static/\2
   upload: (\w+)/static/(.*)
+  
+  # pre-load code to instance
+- url: /_ah/warmup
+  script: main.py
 
   # run GAE framework request handler
 - url: /.*

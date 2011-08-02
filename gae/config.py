@@ -9,8 +9,8 @@ Usage:
     admins = get_config("user.admins", default_value=[])
     language = get_config("site.language", "en")
 '''
-import os, yaml, sys, copy
-from gae.tools import applications
+import os, yaml, copy
+from gae.tools import installed_apps
 __all__ = ["get_config"]
 
 
@@ -24,7 +24,7 @@ class Config:
             raise Exception, "For access to configuration please use get_config() function"
         Config._already_loaded = True
         # get list of configuration files
-        apps_configs = [(app_name, os.path.join(app_name, "config.yaml")) for app_name in applications()]
+        apps_configs = [(app_name, os.path.join(app_name, "config.yaml")) for app_name in installed_apps()]
         # load configuration files
         for app_name, app_config in apps_configs:
             Config._apps_configs[app_name] = self._load_config(app_config)
@@ -65,14 +65,14 @@ class Config:
                 if config is None: break
         return copy.deepcopy(config) if config is not None else default_value
 
-config = None
+_config = None
 
 def get_config(path=None, default_value=None):
     # create one copy of configuration
-    global config
-    if config is None:
-        config = Config()
+    global _config
+    if _config is None:
+        _config = Config()
     # load given configuration options
     if path is not None:
-        return config.get(path, default_value)
-    return config
+        return _config.get(path, default_value)
+    return _config

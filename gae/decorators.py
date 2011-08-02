@@ -2,8 +2,21 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.utils import simplejson
+from google.appengine.ext import deferred
 
- 
+def run(module, func, *args, **kwargs):
+    func = __import__("%s.%s" % (module, func))
+    func.run(*args, **kwargs)
+
+def task(func):
+    '''
+    Decorate any function to run with deffered task.
+    '''
+    def defer(*args, **kwargs):
+        deferred.defer(run, func.__module__, func.__name__, *args, **kwargs)
+    defer.run = func
+    return defer
+
 def render(template=None, ajax=False):
     """
     Decorate the controller.

@@ -6,7 +6,7 @@
   <h1>{% translate "User login" %}</h1>
 
   <p>
-    {% translate "If you have not an account than" %} <a href="/user/registration?back_url={% back_url %}">{% translate "create new account" %}</a>.
+    {% translate "If you have not an account than" %} <a href="/user/registration?previous_page={{ previous_page }}">{% translate "create new account" %}</a>.
   </p>
 
   {% include "user/block/login_form.html"%}

@@ -10,68 +10,68 @@ from gae.pages import Pages
 
 ''' operations with blogs '''
 
-def blogs_list(app):
+def blogs_list(request):
     blogs = Blog.all().order('-created')
     # show not published blogs
-    if app.request.GET.get("show") == "unpublished" and app.user:
+    if request.GET.get("show") == "unpublished" and request.user:
         # show all blogs
         blogs.filter('active', False)
         # show only user blogs
-        if not app.user.is_admin:
-            blogs.filter('author', app.user)
+        if not request.user.is_admin:
+            blogs.filter('author', request.user)
     # show only active blogs
     else:
         blogs.filter('active', True)
     # render page
-    return app.render('blog/blogs_list', {
+    return request.render('blog/blogs_list', {
                       'blogs': Pages(blogs, 20, "blogs_page"),
                       })
 
 @login_required()
-def blog_create(app):
-    if app.request.POST:
-        form = BlogCreateForm(data=app.request.POST)
+def blog_create(request):
+    if request.POST:
+        form = BlogCreateForm(data=request.POST)
         # filled form
         if form.is_valid():
             form.save()
-            return app.redirect("go back")
+            return request.redirect("go back")
     else:
         # empty form
         form = BlogCreateForm()
     # render page
-    return app.render('blog/blog_create', {'form': form})
+    return request.render('blog/blog_create', {'form': form})
 
 @login_required()
-def blog_edit(app, blog):
+def blog_edit(request, blog):
     blog_obj = Blog.get_by_key_name(blog)
     # item not found
     if blog_obj is None:
-        return app.error(404)
-    if app.request.POST:
+        return request.error(404)
+    if request.POST:
         # filled form
-        form = BlogEditForm(data=app.request.POST, instance=blog_obj)
+        form = BlogEditForm(data=request.POST, instance=blog_obj)
         if form.is_valid():
             form.save()
-            return app.redirect("go back")
+            return request.redirect("go back")
     else:
         # empty form with initial data
         form = BlogEditForm(instance=blog_obj)
     # render page
-    return app.render('blog/blog_edit', {'form': form})
+    return request.render('blog/blog_edit', {'form': form})
 
 @login_required()
-def blog_delete(app, blog):
+def blog_delete(request, blog):
     blog_obj = Blog.get_by_key_name(blog)
     # item not found
     if blog_obj is None:
-        return app.error(404)
+        return request.error(404)
     # delete blog
     blog_obj.delete()
-    return app.redirect("go back")
+    return request.redirect("go back")
 
 ''' operations with blog entities '''
 
-def entities_list(app, blog=None, tags=None):
+def entities_list(request, blog=None, tags=None):
     blog_obj = blog and Blog.get_by_key_name(blog)
     entities = Entity.all().order('-changed')
     if blog_obj:
@@ -79,64 +79,64 @@ def entities_list(app, blog=None, tags=None):
     if tags:
         entities.filter('tags IN', tags.strip().split(','))
     # show not published entities
-    if app.request.GET.get("show") == "unpublished" and app.user:
+    if request.GET.get("show") == "unpublished" and request.user:
         # show all entities
         entities.filter('active', False)
         # show only user entities
-        if not app.user.is_admin:
-            entities.filter('author', app.user)
+        if not request.user.is_admin:
+            entities.filter('author', request.user)
     # show only active blogs
     else:
         entities.filter('active', True)
     # render page
-    return app.render('blog/entities_list', {
+    return request.render('blog/entities_list', {
                       'blog': blog_obj,
                       'entities': Pages(entities, 20, "entities_page"),
                       })
 
-def entity_details(app, blog, entity):
+def entity_details(request, blog, entity):
     blog_obj = get_object_or_404(Blog, slug=blog)
     entity_obj = get_object_or_404(Entity, slug="%s/%s" % (blog_obj.key().name(), entity))
     # render page
-    return app.render('blog/entity_details', {
+    return request.render('blog/entity_details', {
                       'blog': blog_obj,
                       'entity': entity_obj})
 
 @login_required()
-def entity_create(app, blog):
+def entity_create(request, blog):
     blog_obj = get_object_or_404(Blog, slug=blog)
-    if app.request.POST:
-        form = EntityCreateForm(data=app.request.POST, initial={'blog': blog_obj})
+    if request.POST:
+        form = EntityCreateForm(data=request.POST, initial={'blog': blog_obj})
         # filled form
         if form.is_valid():
             form.save()
-            return app.redirect("go back")
+            return request.redirect("go back")
     else:
         # empty form
         form = EntityCreateForm()
     # render page
-    return app.render('blog/entity_create', {'form': form})
+    return request.render('blog/entity_create', {'form': form})
 
 @login_required()
-def entity_edit(app, blog, entity):
+def entity_edit(request, blog, entity):
     blog_obj = get_object_or_404(Blog, slug=blog)
     entity_obj = get_object_or_404(Entity, slug="%s/%s" % (blog_obj.key().name(), entity))
-    if app.request.POST:
+    if request.POST:
         # filled form
-        form = EntityEditForm(data=app.request.POST, instance=entity_obj)
+        form = EntityEditForm(data=request.POST, instance=entity_obj)
         if form.is_valid():
             form.save()
-            return app.redirect("go back")
+            return request.redirect("go back")
     else:
         # empty form with initial data
         form = EntityEditForm(instance=entity_obj)
     # render page
-    return app.render('blog/entity_edit', {'form': form})
+    return request.render('blog/entity_edit', {'form': form})
 
 @login_required()
-def entity_delete(app, blog, entity):
+def entity_delete(request, blog, entity):
     blog_obj = get_object_or_404(Blog, slug=blog)
     entity_obj = get_object_or_404(Entity, slug="%s/%s" % (blog_obj.key().name(), entity))
     # delete blog entity
     entity_obj.delete()
-    return app.redirect("go back")
+    return request.redirect("go back")

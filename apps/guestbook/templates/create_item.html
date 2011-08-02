@@ -6,11 +6,11 @@
   <h3>Create item</h3>
 
   <form method="POST" action="">
-    <input type="hidden" name="back_url"  value="{% back_url %}">
+    <input type="hidden" name="previous_page"  value="{{ previous_page }}">
     <table>
       {{ form.content }}
     </table>
     <input type="submit" value="Save">
-    <a href="{% back_url %}">Cancel</a>
+    <a href="{{ previous_page }}">Cancel</a>
   </form>
 {% endblock %}
