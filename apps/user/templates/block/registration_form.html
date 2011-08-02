@@ -1,5 +1,5 @@
 <form method="POST" action="/user/registration" class="user registration">
-  <input type="hidden" name="back_url"  value="{% if app == "user" %}{% back_url %}{% else %}{% current_url %}{% endif %}">
+  <input type="hidden" name="previous_page"  value="{% if app == "user" %}{{ previous_page }}{% else %}{{ current_page }}{% endif %}">
 
   {{ form.nick.errors }}
   <p class="nick">
@@ -14,6 +14,6 @@
 
   <p class="buttons center last">
     <input type="submit" value="{% translate "Register" %}">
-    <a href="{% back_url %}">{% translate "Cancel" %}</a>
+    <a href="{{ previous_page }}">{% translate "Cancel" %}</a>
   </p>
 </form>

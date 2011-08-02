@@ -2,9 +2,9 @@
 
 <form action="{% url comments.create_comment %}" method="post" class="comment">
   {% ifequal app "comment" %}
-    <input type="hidden" name="back_url" value="{% back_url %}">
+    <input type="hidden" name="previous_page" value="{{ previous_page }}">
   {% else %}
-    <input type="hidden" name="back_url" value="{% current_url %}">
+    <input type="hidden" name="previous_page" value="{{ current_page }}">
   {% endifequal %}
   {% for field in form %}
     {% if field.is_hidden %}
@@ -19,7 +19,7 @@
   <p class="submit last">
     <input type="submit" name="post" class="submit-post" value="{% translate "Post" %}">
     {% ifequal app "comment" %}
-      <a href="{% back_url %}">{% translate "Cancel" %}</a>
+      <a href="{{ previous_page }}">{% translate "Cancel" %}</a>
     {% endifequal %}
   </p>
 </form>

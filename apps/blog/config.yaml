@@ -1,3 +1,5 @@
+version: 1.0
+
 urls:
 - url:
   run: entries_list
@@ -27,26 +29,25 @@ urls:
 comments: True
 
 migration:
-  1:
-    +Entity:
+  1.0:
+  1.1:
+    Entity:
       +slug: db.StringProperty('entry url', required=True)
       +author: db.UserProperty()
-  2:
-    Entity:
-      author: db.UserProperty(auto_current_user_add=True, required=True)
       +name: db.StringProperty(required=True)
       +text: db.TextProperty(required=True)
-  3:
+  1.2:
     Entity > Publication:
       -text:
+      author: db.UserProperty(auto_current_user_add=True, required=True)
       name > title: db.StringProperty(required=True)
       +description: db.StringProperty()
-  4:
+  1.10:
     Publication:
       +created: db.DateTimeProperty(auto_now_add=True)
       +changed: db.DateTimeProperty(auto_now=True)
       +active: db.BooleanProperty(default=False)
-  5:
+  2.0:
     Publication:
       +tags: db.StringListProperty()
   

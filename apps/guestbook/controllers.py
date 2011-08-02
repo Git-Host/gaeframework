@@ -4,19 +4,19 @@ Test application.
 from models import Message
 from forms import MessageForm
 
-def items_list(app, on_page=10, page=1, template=None):
+def items_list(request, on_page=10, page=1, template=None):
     greetings = Message.all().order('-date').fetch(on_page)
-    return app.render(template or 'guestbook/items_list', {'greetings': greetings})
+    return request.render(template or 'guestbook/items_list', {'greetings': greetings})
 
-def create_item(app):
-    if app.request.POST:
+def create_item(request):
+    if request.POST:
         # filled form
-        form = MessageForm(data=app.request.POST)
+        form = MessageForm(data=request.POST)
         if form.is_valid():
             form.save()
-            app.redirect(app.back_url())
+            request.redirect(request.previous_page)
     else:
         # empty form
         form = MessageForm()
     # show form with specified data
-    return app.render('guestbook/create_item', {'form': form})
+    return request.render('guestbook/create_item', {'form': form})

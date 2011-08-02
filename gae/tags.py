@@ -151,15 +151,6 @@ class UrlNode(django_template.Node):
 
 register = template.create_template_register()
 
-@register.simple_tag
-def back_url():
-    '''Return url to previous page'''
-    return webapp.instance.back_url()
-
-@register.simple_tag
-def current_url():
-    '''Return current page address'''
-    return webapp.instance.request.path
 
 @register.tag
 @node_rule(BaseNode, ('[text]', '[text] [app_name]'))

@@ -8,11 +8,11 @@
 
   <p>
     <b>This page available only for registered users.</b>
-    You can authorize, or go back to the <a href="{% back_url %}">previous page</a>.
+    You can authorize, or go back to the <a href="{{ previous_page }}">previous page</a>.
   </p>
 
   <p>
-    If you have not an account than <a href="/user/registration?back_url={% current_url %}">{% translate "create new account" %}</a>.
+    If you have not an account than <a href="/user/registration?previous_page={{ current_page }}">{% translate "create new account" %}</a>.
   </p>
 
   {% login_form %}
