@@ -22,6 +22,8 @@ from google.appengine.ext.remote_api import remote_api_stub
 from google.appengine.ext import db
 import yaml
 
+LOCAL_HOST = '127.0.0.1:8000'
+
 
 def usage(app_name):
     return """
@@ -103,6 +105,7 @@ def debug_project(project_name, remote=False):
     Run project shell to debug code (pass --remote to work with server datastore)
     '''
     project_dir = os.path.join(os.getcwd(), project_name)
+    os.chdir(project_dir)
     try:
         config_file = os.path.join(project_dir, 'app.yaml')
         fd = open(config_file)
@@ -116,14 +119,18 @@ def debug_project(project_name, remote=False):
         def auth_func():
             print "Authenticate on Google App Engine server"
             return raw_input('Username: '), getpass.getpass('Password: ')
-        
         host = '%s.appspot.com' % app_id
-        os.chdir(project_dir)
         
-        remote_api_stub.ConfigureRemoteDatastore(app_id, '/_ah/remote_api', auth_func, host)
-        code.interact('App Engine interactive console for %s' % host, None, locals())
+#        remote_api_stub.ConfigureRemoteDatastore(app_id, '/_ah/remote_api', auth_func, host)
+#        code.interact('App Engine interactive console for %s' % host, None, locals())
     else:
-        code.interact('App Engine interactive console for %s' % app_id, None, locals())
+        def auth_func():
+            return ("foo", "bar")
+        host = LOCAL_HOST
+#        code.interact('App Engine interactive console for %s' % app_id, None, locals())
+    remote_api_stub.ConfigureRemoteDatastore(app_id, '/_ah/remote_api', auth_func, host)
+    remote_api_stub.MaybeInvokeAuthentication()
+    code.interact('App Engine interactive console for %s' % host, None, locals())
     return True
 
 
@@ -163,7 +170,18 @@ def main(command, project_name, *args):
     project_name = project_name.strip(' /\\') # delete slash around project name
     sys.path.insert(0, os.path.join(os.getcwd(), project_name))
     if command == "run":
-        os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'dev_appserver.py %s') % project_name)
+        flags = ["--address=%s" % LOCAL_HOST.split(':')[0],
+                 "--port=%s" % LOCAL_HOST.split(':')[1],
+                 "--datastore_path=%s/.datastore" % project_name,
+                 "--history_path=%s/.history" % project_name,
+                 "--blobstore_path=%s/.blobstore" % project_name,
+                 "--use_sqlite",
+                 "--require_indexes",
+                 "--disable_static_caching",
+                 ] + list(args)
+        os.system(os.path.join(os.path.dirname(gae_dir),
+                               'google_appengine',
+                               'dev_appserver.py %s %s') % (" ".join(flags), project_name))
     elif command == "deploy":
         # compile templates (Jinja2, Closure)
         # deploy to server
