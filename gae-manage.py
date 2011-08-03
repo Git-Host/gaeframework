@@ -2,7 +2,7 @@
 '''
 Manage GAE framework projects.
 '''
-import os, sys, fileinput, code, getpass, gae
+import os, sys, fileinput, code, getpass, urllib2, gae
 from shutil import copyfile, copytree
 gae_dir = os.path.dirname(gae.__file__)
 appengine_dir = os.path.join(os.path.dirname(gae_dir), 'google_appengine')
@@ -116,10 +116,10 @@ def debug_project(project_name, remote=False):
         raise Exception("Configuration file '%s' not found" % config_file)
     
     if remote:
-        def auth_func():
-            print "Authenticate on Google App Engine server"
-            return raw_input('Username: '), getpass.getpass('Password: ')
         host = '%s.appspot.com' % app_id
+        def auth_func():
+            print "Authenticate on Google App Engine server (%s)" % host
+            return raw_input('Username: '), getpass.getpass('Password: ')
         
 #        remote_api_stub.ConfigureRemoteDatastore(app_id, '/_ah/remote_api', auth_func, host)
 #        code.interact('App Engine interactive console for %s' % host, None, locals())
@@ -128,8 +128,12 @@ def debug_project(project_name, remote=False):
             return ("foo", "bar")
         host = LOCAL_HOST
 #        code.interact('App Engine interactive console for %s' % app_id, None, locals())
-    remote_api_stub.ConfigureRemoteDatastore(app_id, '/_ah/remote_api', auth_func, host)
-    remote_api_stub.MaybeInvokeAuthentication()
+    try:
+        remote_api_stub.ConfigureRemoteDatastore(app_id, '/_ah/remote_api', auth_func, host)
+        remote_api_stub.MaybeInvokeAuthentication()
+    except urllib2.HTTPError:
+        remote_api_stub.ConfigureRemoteDatastore(app_id, '/remote_api', auth_func, host)
+        remote_api_stub.MaybeInvokeAuthentication()
     code.interact('App Engine interactive console for %s' % host, None, locals())
     return True
 
