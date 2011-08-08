@@ -3,9 +3,9 @@
 To create new release we need foolow next steps:
 - ./setup.py register
   Read more: http://docs.python.org/distutils/packageindex.html
-- ./setup.py sdist --formats=gztar,zip 
+- ./setup.py sdist --formats=gztar,zip
   Read more: http://docs.python.org/distutils/sourcedist.html
-- ./setup.py sdist --formats=gztar,zip  upload 
+- ./setup.py sdist --formats=gztar,zip  upload
   Read more: http://docs.python.org/distutils/uploading.html
 '''
 from setuptools import setup, find_packages
@@ -38,17 +38,20 @@ with open('README') as file:
 
 setup(
     name = "gaeframework",
-    version = "2.0.3",
+    version = "2.0.5",
     author = "Anton Danilchenko",
     author_email = "anton.danilchenko@gaeframework.com",
     description = "GAE framework is a Python web framework for use on Google App Engine",
     long_description = long_description,
-    download_url = "http://gaeframework.googlecode.com/files/gaeframework-2.0.3.zip",
+    download_url = "http://code.google.com/p/gaeframework/downloads/list",
     url = "http://www.gaeframework.com",
-    packages = find_packages(),
     include_package_data = True,
     zip_safe=False,
-    scripts = ['gae-manage.py'],
+    scripts = ['gae-manage.py'] + [os.path.join("google_appengine", os.path.basename(path))
+                                   for path
+                                   in os.listdir(os.path.join(os.path.dirname(__file__), 'google_appengine'))
+                                   if path.endswith('.py') and not path.startswith('__')],
+    packages = find_packages(),
     classifiers=['Development Status :: 4 - Beta',
                 'Environment :: Web Environment',
                 'Intended Audience :: Developers',
