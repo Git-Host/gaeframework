@@ -1,5 +1,3 @@
-from gae import webapp
-
 
 def get_objects_or_404(model, **kwargs):
     '''Return object with given criteria or show "page not found"'''
@@ -25,34 +23,6 @@ def get_object_or_404(model, **kwargs):
     except:
         obj = None
     if not obj:
-        webapp.instance.error(404)
         raise Exception("Object '%s' by arguments '%r' not found" %
                         (model.__name__, kwargs))
     return obj
-
-
-def render_to(template_path=None):
-    '''
-    Decorator for controllers.
-    
-    Usage:
-        @render_to("template_name.html")
-        def controller_name(...): ...
-
-        @render_to()
-        def controller_name(...):
-            return "custom_template_name.html", {"user": user}
-    '''
-    def decorator(func):
-        def wrapper(request, *args, **kwargs):
-            output = func(request, *args, **kwargs)
-            try:
-                template_path = output[0]
-                output = output.get(1, {})
-            except:
-                pass
-            if not isinstance(output, dict):
-                return output
-            return webapp.instance.render(template_path, output)
-        return wrapper
-    return decorator
