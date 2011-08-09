@@ -1,19 +1,19 @@
 from django.template import RequestContext
-from django.shortcuts import render_to_response
 from django.http import HttpResponse
 from django.utils import simplejson
 from google.appengine.ext import deferred
 
-def run(module, func, *args, **kwargs):
-    func = __import__("%s.%s" % (module, func))
-    func.run(*args, **kwargs)
+def deferred_task(func):
+    '''
+    Decorate any function to run with deferred task.
+    '''
+    def run(module, func, *args, **kwargs):
+        func = __import__("%s.%s" % (module, func))
+        func.run(*args, **kwargs)
 
-def task(func):
-    '''
-    Decorate any function to run with deffered task.
-    '''
     def defer(*args, **kwargs):
         deferred.defer(run, func.__module__, func.__name__, *args, **kwargs)
+
     defer.run = func
     return defer
 
@@ -52,6 +52,9 @@ def render(template=None, ajax=False):
                 context = context[1] if len(context) > 1 else {}
             elif type(context) is dict:
                 pass
+            elif type(context) in (str, unicode):
+                template = context
+                context = {}
             else:
                 return context
             
@@ -59,7 +62,7 @@ def render(template=None, ajax=False):
                 return HttpResponse(simplejson.dumps(context),
                                     mimetype='application/json')
             
-            return render_to_response(template, context,
-                                      context_instance = RequestContext(request))
+            return request.render(template, context,
+                                  context_instance = RequestContext(request))
         return wrapper
     return decorator
