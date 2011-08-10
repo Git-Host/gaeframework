@@ -6,6 +6,7 @@ from gae.sessions import SessionMiddleware
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.appstats import recording
 from google.appengine.ext import db
+from google.appengine.api.app_identity import get_application_id
 from django.conf import settings as django_settings
 from gae.sessions import get_current_session
 from gae.config import get_config
@@ -360,7 +361,7 @@ def run(project_dir, appstats=True, debug=None):
     # auto detect environment (development or production)
     if debug is None:
         debug = os.environ['SERVER_SOFTWARE'].startswith('Development')
-    COOKIE_KEY = 'my_private_key_used_for_this_application_%s' % os.environ['APPLICATION_ID']
+    COOKIE_KEY = 'my_private_key_used_for_this_application_%s' % get_application_id()
     app = WSGIApplication.active_instance or WSGIApplication(project_dir, debug)
     app = SessionMiddleware(app, cookie_key=COOKIE_KEY, cookie_only_threshold=0)
     if appstats:
