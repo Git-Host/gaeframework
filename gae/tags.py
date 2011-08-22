@@ -142,7 +142,6 @@ class UrlNode(django_template.Node):
     def _make_url(self, url, vars={}):
         # convert url to style "%(blog)s/new"
         url_with_placemarks = prepare_url_vars(url, "%%(%s)s")
-#        logging.info(url_with_placemarks)
         try:
             # insert values from dictionary to string
             return url_with_placemarks % vars
