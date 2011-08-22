@@ -103,10 +103,10 @@ class BaseNode(django_template.Node):
 
 
 class UrlNode(django_template.Node):
-    def __init__(self, params):
-        self.full_tag = "{%% tag %s %%}" % " ".join(params)
+    def __init__(self, tag_name, params):
+        self.full_tag = "{%% %s %s %%}" % (tag_name, " ".join(params))
         if len(params) == 0:
-            raise django_template.TemplateSyntaxError("You need pass arguments to 'url' template tag")
+            raise django_template.TemplateSyntaxError("You need pass arguments to 'url' template tag %s" % self.full_tag)
         try:
             self.app, self.tag = params[0].split('.')
         except:
@@ -130,7 +130,7 @@ class UrlNode(django_template.Node):
                 params[k] = params[k].key().name() or params[k].key().id() or params[k].key()
         # search in global urls mapping
         for url in get_config("site.urls", []):
-            if url.get('map', "") == self.app:
+            if url.get('run', "") == self.app:
                 url_prefix = url.get('url') or ""
                 # search in mapped application
                 for url in get_config("%s.urls" % self.app, []):
@@ -141,7 +141,8 @@ class UrlNode(django_template.Node):
 
     def _make_url(self, url, vars={}):
         # convert url to style "%(blog)s/new"
-        url_with_placemarks = prepare_url_vars(url, "%(\\1)s")
+        url_with_placemarks = prepare_url_vars(url, "%%(%s)s")
+#        logging.info(url_with_placemarks)
         try:
             # insert values from dictionary to string
             return url_with_placemarks % vars
@@ -163,11 +164,12 @@ def translate(self, context):
 
 @register.tag
 def url(parser, token):
+    tag_name = token.split_contents()[0]
     try:
         params = token.split_contents()[1:]
+        return UrlNode(tag_name, params)
     except ValueError:
-        raise django_template.TemplateSyntaxError, "%r tag requires an arguments" % token.contents.split()[0]
-    return UrlNode(params)
+        raise django_template.TemplateSyntaxError, "%r tag requires an arguments" % tag_name
 
 @register.filter(name='translate')
 @stringfilter
@@ -184,7 +186,7 @@ def debug(content):
 def pagination(self, context):
     '''Return pagination links'''
     paginator = self.get_var(context, self.paginator)
-    return template.render('block/pagination.html', {"paginator": paginator})
+    return template.render('common/pagination.html', {"paginator": paginator})
 
 from gae.template.tag_elif import do_if
 register.tag("if", do_if)

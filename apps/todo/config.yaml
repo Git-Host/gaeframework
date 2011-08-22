@@ -1,7 +1,7 @@
 urls:
 
 - url:
-  run: todo_list
+  run: todo.todo_list
 
 - url: new
-  run: create_task
+  run: todo.create_task

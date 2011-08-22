@@ -11,6 +11,11 @@ To create new release we need foolow next steps:
 from setuptools import setup, find_packages
 import os
 import sys
+try:
+    # by default python2.5 not support 'with' statement
+    from __future__ import with_statement
+except:
+    pass
 
 
 def fullsplit(path, result=None):

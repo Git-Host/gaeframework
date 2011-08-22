@@ -1,28 +1,28 @@
 urls:
 - url: add
-  run: create_comment
+  run: comments.create_comment
   tag: create_comment
 
 #- url: comment/posted
-#  run: comment.comment_done
+#  run: comments.comment_done
 
 #- url: comment/flag/(comment_id)
-#  run: comment.flag
+#  run: comments.flag
 
 #- url: comment/flagged
-#  run: comment.flag_done
+#  run: comments.flag_done
 
 #- url: comment/delete/(comment_id)
-#  run: comment.delete
+#  run: comments.delete
 
 #- url: comment/deleted
-#  run: comment.delete_done
+#  run: comments.delete_done
 
 #- url: comment/moderate
-#  run: comment.moderation_queue
+#  run: comments.moderation_queue
 
 #- url: comment/approve/(comment_id)
-#  run: comment.approve
+#  run: comments.approve
 
 #- url: comment/approved
-#  run: comment.approve_done
+#  run: comments.approve_done

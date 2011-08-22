@@ -6,6 +6,23 @@ from google.appengine.ext import deferred
 def deferred_task(func):
     '''
     Decorate any function to run with deferred task.
+    
+    Best practice to use separate function to handle
+    prepared query object.
+    
+    >>> def update_currency():
+    >>>   for currency in ['usd', 'rub', 'gbp']:
+    >>>     if is_cahnged_from_last_update(currency):
+    >>>       products = Product.all().filter('currency', currency)
+    >>>       update_products_price(products, currency)
+    >>>
+    >>> @deferred_task
+    >>> def update_products_price(products, currency, cursor=None):
+    >>>   products.with_cursor(cursor)
+    >>>   product = products.get()
+    >>>   # here update product price depends on currency rate
+    >>>   product.put()
+    >>>   update_products_price(product, currency, cursor=products.cursor()
     '''
     def run(module, func, *args, **kwargs):
         func = __import__("%s.%s" % (module, func))

@@ -13,8 +13,12 @@ urls:
    run: site.data_migration
 
    # homepage
- - url:
+ - url: /
    run: site.index
+
+   # map 'user' application
+ - url: user/
+   run: user
 
 
 # site configuration
