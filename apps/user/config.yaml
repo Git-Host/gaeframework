@@ -1,23 +1,23 @@
 urls:
 
 - url:
-  run: users_list
+  run: user.users_list
   tag: users_list
 
 - url: login
-  run: login
+  run: user.login
   tag: login
 
 - url: logout
-  run: logout
+  run: user.logout
   tag: logout
 
 - url: registration
-  run: registration
+  run: user.registration
   tag: registration
 
 - url: (user)
-  run: user_profile
+  run: user.user_profile
   tag: user_profile
 
 # application specific configuration

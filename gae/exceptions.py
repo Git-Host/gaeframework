@@ -8,3 +8,7 @@ class PageNotFound(Exception):
 class AccessDenied(Exception):
     '''500 error'''
     pass
+
+class IncorrectUrlDefinition(Exception):
+    '''Incorrect url'''
+    pass

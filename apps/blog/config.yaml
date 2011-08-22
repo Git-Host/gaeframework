@@ -3,27 +3,27 @@ version: 1.0
 urls:
 
 - url:
-  run: entries_list
+  run: blog.entries_list
   tag: entries_list
 
 - url: tag/(tags)
-  run: entries_list
+  run: blog.entries_list
   tag: entries_list_tagged
 
 - url: new
-  run: create_entry
+  run: blog.create_entry
   tag: create_entry
 
 - url: (entry)/edit
-  run: edit_entry
+  run: blog.edit_entry
   tag: edit_entry
 
 - url: (entry)/delete
-  run: delete_entry
+  run: blog.delete_entry
   tag: delete_entry
 
 - url: (entry)
-  run: entry_details
+  run: blog.entry_details
   tag: entry_details
 
 # application specific configuration

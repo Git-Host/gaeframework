@@ -11,6 +11,7 @@ from django.conf import settings as django_settings
 from gae.sessions import get_current_session
 from gae.config import get_config
 from gae.tools import prepare_url_vars, installed_apps
+from gae.exceptions import IncorrectUrlDefinition
 from gae import template
 from user import get_current_user
 
@@ -297,36 +298,36 @@ class WSGIApplication(webapp.WSGIApplication):
         '''
         if self._urls:
             return False
-        # load global urls mapping
-        for site_rule in get_config('site.urls', []):
-            if "url" not in site_rule:
-                raise Exception("Not defined 'url' argument in the global urls mapping. Rule: %r" % site_rule)
-            # request handler
-            if "run" in site_rule:
-                site_rule['url'] = self._prepare_url(site_rule['url'])
-                self._urls.append(site_rule)
-            # load urls mapping for mapped application
-            elif "map" in site_rule:
-                app_name = site_rule["map"]
-                for app_rule in get_config('%s.urls' % app_name, {}):
-                    if "url" not in app_rule:
-                        raise Exception("Not defined 'url' argument in the urls mapping for application '%s'. Rule: %r" % (app_name, app_rule))
-                    if "run" not in app_rule:
-                        raise Exception("Not defined 'run' argument in the urls mapping for application '%s'. Rule: %r" % (app_name, app_rule))
-                    app_rule['url'] = self._prepare_url(app_rule['url'], site_rule['url'])
-                    app_rule['run'] = "%s.%s" % (app_name, app_rule['run'])
-                    self._urls.append(app_rule)
-            else: # not specified one of 'run' and 'map' arguments
-                raise Exception("Required 'run' or 'map' argument in urls mapping. Rule: %r" % site_rule)
-        # compile regular expressions
-        try:
+        # load urls mapping
+        self._urls = self._map_urls('site')
+        try: # compile regular expressions
             for rule in self._urls:
                 rule['compiled_url'] = re.compile("%s" % rule['url'])
         except Exception, err:
-            logging.error("Error in urls mapping in regular expression %r. Error: %s" % (rule['url'], err))
+            logging.error("Error in urls mapping (rule %r). Error: %s" % (rule['url'], err))
             # delete urls because we have errors
             self._urls = []
         return True
+
+    def _map_urls(self, app_name, parent_rule={}):
+        urls = []
+        for rule in get_config('%s.urls' % app_name, {}):
+            if "url" not in rule:
+                raise Exception("Not defined 'url' argument in the urls mapping for application '%s'. Rule: %r" % (app_name, rule))
+            if "run" not in rule:
+                raise Exception("Not defined 'run' argument in the urls mapping for application '%s'. Rule: %r" % (app_name, rule))
+            
+            if rule["run"].count('.') == 1: # run: app.controller
+                try:
+                    rule['url'] = self._prepare_url(rule['url'], parent_rule.get('url'))
+                except IncorrectUrlDefinition, e:
+                    raise IncorrectUrlDefinition("Url rule %r in app %s is incorrect. Error: %s" % (rule, app_name, e))
+                urls.append(rule)
+            elif rule["run"].count('.') == 0: # run: app
+                urls.extend(self._map_urls(rule["run"], rule))
+            else: # run: app.controller.whatever
+                raise Exception("Incorrect definition of 'run' argument in the urls mapping for application '%s'. Rule: %r" % (app_name, rule))
+        return urls
 
     def _prepare_url(self, url, url_prefix=""):
         '''Return url rule to use in regular expressions module'''
@@ -337,8 +338,8 @@ class WSGIApplication(webapp.WSGIApplication):
         url = url.strip('/')
         url_prefix = url_prefix.strip('/')
         # replace '[var_name]' and '[varname:type]' to regular expression rule
-        url = prepare_url_vars(url, "(?P<\\1>[^/]+)")
-        url_prefix = prepare_url_vars(url_prefix, "(?P<\\1>[^/]+)")
+        url = prepare_url_vars(url, "(?P<%s>%s)")
+        url_prefix = prepare_url_vars(url_prefix, "(?P<%s>%s)")
         # delete spaces after join url with prefix, if url or prefix is empty
         return "^%s/?$" % "/".join([url_prefix, url]).strip('/')
 

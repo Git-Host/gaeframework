@@ -5,3 +5,5 @@ syntax: regexp
 ^gaeframework\.egg-info$
 syntax: regexp
 ^dist$
+syntax: regexp
+^project.*
