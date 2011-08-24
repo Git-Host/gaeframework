@@ -311,6 +311,8 @@ class WSGIApplication(webapp.WSGIApplication):
 
     def _map_urls(self, app_name, parent_rule={}):
         urls = []
+        if app_name not in installed_apps():
+            raise Exception("Application %s is not available" % app_name)
         for rule in get_config('%s.urls' % app_name, {}):
             if "url" not in rule:
                 raise Exception("Not defined 'url' argument in the urls mapping for application '%s'. Rule: %r" % (app_name, rule))
