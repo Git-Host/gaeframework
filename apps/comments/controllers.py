@@ -1,7 +1,7 @@
 '''
 Comments - attach comments to any object.
 '''
-from comment.forms import UserCommentForm
+from comments.forms import UserCommentForm
 from user import login_required
 from gae import db
 import re

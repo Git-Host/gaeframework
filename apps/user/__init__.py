@@ -26,20 +26,20 @@ def login_required(*roles):
         roles - list of roles for users who have access to given request handler
     '''
     def wrap(handler_method):
-        def check_login(self, *args, **kwargs):
+        def check_login(request, *args, **kwargs):
             user = get_current_user()
             # not logged
             if not user:
-                return self.redirect(get_login_url(self.request.path))
+                return request.redirect(get_login_url(request.request.path))
             # roles not specified
             if not roles:
-                return handler_method(self, *args, **kwargs)
+                return handler_method(request, *args, **kwargs)
             # check role
             for role in roles:
                 # allow access with given role
                 if user.has_role(role):
-                    return handler_method(self, *args, **kwargs)
+                    return handler_method(request, *args, **kwargs)
             # access denied
-            return self.error(401)
+            raise request.ACCESS_DENIED
         return check_login
     return wrap

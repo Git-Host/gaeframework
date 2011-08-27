@@ -35,7 +35,7 @@ def create_task(request):
 
 @login_required()
 def edit_todo(request):
-    request.error(404)
+    raise request.PAGE_NOT_FOUND
 
 @login_required()
 def delete_todo(request, todo_id):

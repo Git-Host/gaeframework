@@ -17,20 +17,3 @@ def get_attr(self, context):
         context[varname] = value
         return ""
     return value
-
-#@register.tag
-#@node_rule(BaseNode, ("", "for [blog]", "as [varname]", "for [blog] as [varname]"))
-#def get_recent_entities(self, context):
-#    '''Get list of latest blog posts'''
-#    collection = Entity.all().filter("active", True).order("-changed")
-#    if hasattr(self, "blog"):
-#        collection.filter("blog", self.get_var(context, self.blog))
-#    collection.fetch(10)
-#    if hasattr(self, "varname"):
-#        context[self.varname] = collection
-#        return ""
-#    return webapp.instance.render("blog/block/entities_list", {"entities": collection})
-#
-#@register.filter
-#def wiki(raw_data):
-#    return Wiki().parse(raw_data)

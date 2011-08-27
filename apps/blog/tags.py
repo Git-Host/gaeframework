@@ -1,4 +1,5 @@
-from gae import template, webapp
+from django.template.loader import render_to_string
+from gae import template
 from gae.markup import Wiki
 from gae.tags import node_rule, BaseNode
 from blog.models import Entity
@@ -14,8 +15,9 @@ def get_recent_entries(self, context):
     if hasattr(self, "varname"):
         context[self.varname] = collection
         return ""
-    # TODO: delete dependency with webapp!
-    return webapp.instance.render("blog/block/entries_list", {"entries": collection})
+    return render_to_string("blog/block/entries_list",
+                            {"entries": collection},
+                            context_instance = context)
 
 @register.tag
 @node_rule(BaseNode, ("for [entry] as [varname]",))
