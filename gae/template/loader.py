@@ -33,7 +33,7 @@ class Loader(BaseLoader):
             app_name, template_path = template_name.split("/", 1)
         except ValueError:
             raise TemplateDoesNotExist, "Not specified application prefix in '%s' template path" % template_name
-        if app_name != "site" and "site" in template_dirs: # global template
+        if "site" in template_dirs: # global template
             yield safe_join(template_dirs.get("site"), template_name)
         if template_dirs.get(app_name) is not None: # template in application
             yield safe_join(template_dirs.get(app_name), template_path)

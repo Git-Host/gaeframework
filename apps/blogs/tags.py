@@ -1,7 +1,8 @@
-from gae import template, webapp
+from django.template.loader import render_to_string
+from gae import template
 from gae.markup import Wiki
 from gae.tags import node_rule, BaseNode
-from blog.models import Blog, Entity
+from blogs.models import Blog, Entity
 
 register = template.create_template_register()
 
@@ -13,7 +14,9 @@ def get_recent_blogs(self, context):
     if hasattr(self, "varname"):
         context[self.varname] = collection
         return ""
-    return webapp.instance.render("blog/block/blogs_list", {"blogs": collection})
+    return render_to_string("blogs/block/blogs_list",
+                            {"blogs": collection},
+                            context_instance = context)
 
 @register.tag
 @node_rule(BaseNode, ("", "for [blog]", "as [varname]", "for [blog] as [varname]"))
@@ -26,7 +29,9 @@ def get_recent_entities(self, context):
     if hasattr(self, "varname"):
         context[self.varname] = collection
         return ""
-    return webapp.instance.render("blog/block/entities_list", {"entities": collection})
+    return render_to_string("blogs/block/entities_list",
+                            {"entities": collection},
+                            context_instance = context)
 
 @register.filter
 def wiki(raw_data):

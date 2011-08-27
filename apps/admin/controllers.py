@@ -115,7 +115,7 @@ def edit_record(request, app_name, model_name, record_key):
     record = Model.get(record_key)
     # record not found
     if record is None:
-        return request.error(404)
+        raise request.PAGE_NOT_FOUND
     # handle form
     if request.POST:
         # filled form

@@ -1,8 +1,8 @@
+from django.template.loader import render_to_string
 from gae import template
-from gae import webapp
 from gae.tags import node_rule, BaseNode
-from comment.models import Comment
-from comment.forms import UserCommentForm
+from comments.models import Comment
+from comments.forms import UserCommentForm
 
 register = template.create_template_register()
 
@@ -30,7 +30,9 @@ def render_comment_list(self, context):
     '''Render list of comments for given object'''
     obj = self.get_object(context)
     qs = Comment.all().filter("obj =", obj)
-    return webapp.instance.render("comments/block/comment_list", {'comment_list': list(qs)})
+    return render_to_string("comments/block/comment_list",
+                            {'comment_list': list(qs)},
+                            context_instance = context)
 
 @register.tag
 @node_rule(BaseNode, ('for [object_instance] as [varname]', 'for [object_type] [object_id] as [varname]'))
@@ -47,4 +49,6 @@ def render_comment_form(self, context):
     through the `comment/form.html` template'''
     obj = self.get_object(context)
     form = UserCommentForm(initial={'obj': obj.key()})
-    return webapp.instance.render("comments/block/form", {'form': form})
+    return render_to_string("comments/block/form",
+                            {'form': form},
+                            context_instance = context)

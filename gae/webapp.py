@@ -8,12 +8,40 @@ from google.appengine.ext.appstats import recording
 from google.appengine.ext import db
 from google.appengine.api.app_identity import get_application_id
 from django.conf import settings as django_settings
+from django.utils import simplejson
 from gae.sessions import get_current_session
 from gae.config import get_config
 from gae.tools import prepare_url_vars, installed_apps
-from gae.exceptions import IncorrectUrlDefinition
+from gae.exceptions import AccessDenied, PageNotFound, Redirect, IncorrectUrlDefinition
 from gae import template
 from user import get_current_user
+
+
+class Content:
+    '''
+    Contains data in not handled format.
+    Allowed JSON, XML and HTML formats (not rendered page).
+    '''
+    data = None
+    mime_type = None
+    template = None
+
+    def __init__(self, data, template=None, mime_type=None):
+        self.data = data
+        self.mime_type = mime_type and mime_type.lower()
+        self.template = template
+
+    def __unicode__(self):
+        if self.template:
+            return template.render(self.template, self.data)
+        elif self.mime_type == "json":
+            return simplejson.dumps(self.data)
+        elif self.mime_type == "xml":
+            raise NotImplemented
+        return self.data
+
+#    def __str__(self):
+#        return self.__unicode__().encode('utf8')
 
 
 class Request(webapp.Request):
@@ -24,8 +52,9 @@ class Request(webapp.Request):
     
     Used for call controller (request handler) and return result.
     '''
-    status_code = None
-    redirect_url = None
+    ACCESS_DENIED = AccessDenied
+    PAGE_NOT_FOUND = PageNotFound
+    REDIRECT = Redirect
 
     def __init__(self, environ, debug):
         self.__debug = debug
@@ -63,17 +92,6 @@ class Request(webapp.Request):
             logging.debug(message)
         else:
             logging.info(message)
-        if self.status_code is not None:
-            self.error(self.status_code)
-
-    def error(self, code):
-        '''Set status code to response'''
-        # human-readable shortcuts
-        if code in ["not found", "page not found"]:
-            code = 404
-        elif code in ["access denied", "no access", "login required"]:
-            code = 403
-        self.status_code = code
 
     def redirect(self, to_page, permanent=False):
         '''Redirect user to given page'''
@@ -83,7 +101,7 @@ class Request(webapp.Request):
         elif to_page in ["reload", "reload page", "refresh", "refresh page"]:
             to_page = self.path
         to_page = to_page.encode("utf-8")
-        self.redirect_url = (to_page, permanent)
+        raise self.REDIRECT(to_page, permanent)
 
     @property
     def previous_page(self):
@@ -97,7 +115,7 @@ class Request(webapp.Request):
         # current page
         return self.path
 
-    def render(self, template_name, variables={}):
+    def render(self, template_name, **variables):
         '''Render given template with a given variables dict'''
         # add file extension
         template_name += '.html'
@@ -108,27 +126,32 @@ class Request(webapp.Request):
         variables['previous_page'] = self.previous_page
         variables['current_page'] = self.path
         # load template from global templates
-        return template.render(template_name, variables, self.__debug)
+        return Content(variables, template_name)
+
+    def json(self, **variables):
+        '''Convert variables dict to JSON representation'''
+        return Content(variables, mime_type="json")
+
+    def xml(self, **variables):
+        '''Convert variables dict to XML representation'''
+        return Content(variables, mime_type="xml")
 
     @property
     def is_ajax(self):
         '''Return True if given request initialized via AJAX call'''
         return self.is_xhr
 
-    def handle_exception(self, exception):
-        """
-        Called if this handler throws an exception during execution.
-        
-        Args:
-          exception: the exception that was thrown
-        """
-        lines = ''
-        if self.__debug:
-            lines = ''.join(traceback.format_exception(*sys.exc_info()))
-        self.error(500)
-        self.log(lines or exception)
-        return "<pre>%s</pre>" % lines if lines else ''
+    @property
+    def installed_apps(self):
+        return installed_apps()
 
+#    def handle_exception(self, exception):
+#        """
+#        Called if this handler throws an exception during execution.
+#        
+#        Args:
+#          exception: the exception that was thrown
+#        """
 #        # show error page for user
 #        if not self.__debug:
 #            if self.status_code is not None and int(self.status_code) != 200:
@@ -165,42 +188,37 @@ class Request(webapp.Request):
 #        # return error page
 #        return "<html><body>%s</html></body>" % errors_html
 
-
-    @property
-    def installed_apps(self):
-        return installed_apps()
-
-    def _traceback_info(self):
-        """
-        Print the usual traceback information, followed by a listing of all the
-        local variables in each frame.
-        """
-        tb = sys.exc_info()[2]
-        while 1:
-            if not tb.tb_next: break
-            tb = tb.tb_next
-        stack = []
-        f = tb.tb_frame
-        while f:
-            stack.append(f)
-            f = f.f_back
-        frames = []
-        for frame in stack:
-            vars = []
-            for key, value in frame.f_locals.items():
-                if key.startswith("__"): continue # not show special variables
-                #We have to be careful not to cause a new error in our error
-                #printer! Calling str() on an unknown object could cause an
-                #error we don't want.
-                try:
-                    var_repr = repr(value)
-                    var_value = unicode(value)
-                    vars.append((key, var_repr, var_value if value != var_value and var_value != var_repr else None))
-                except:
-                    pass
-            frame_info = {"func": frame.f_code.co_name, "file": frame.f_code.co_filename, "line": frame.f_lineno}
-            frames.append((frame_info, vars))
-        return frames
+#    def _traceback_info(self):
+#        """
+#        Print the usual traceback information, followed by a listing of all the
+#        local variables in each frame.
+#        """
+#        tb = sys.exc_info()[2]
+#        while 1:
+#            if not tb.tb_next: break
+#            tb = tb.tb_next
+#        stack = []
+#        f = tb.tb_frame
+#        while f:
+#            stack.append(f)
+#            f = f.f_back
+#        frames = []
+#        for frame in stack:
+#            vars = []
+#            for key, value in frame.f_locals.items():
+#                if key.startswith("__"): continue # not show special variables
+#                #We have to be careful not to cause a new error in our error
+#                #printer! Calling str() on an unknown object could cause an
+#                #error we don't want.
+#                try:
+#                    var_repr = repr(value)
+#                    var_value = unicode(value)
+#                    vars.append((key, var_repr, var_value if value != var_value and var_value != var_repr else None))
+#                except:
+#                    pass
+#            frame_info = {"func": frame.f_code.co_name, "file": frame.f_code.co_filename, "line": frame.f_lineno}
+#            frames.append((frame_info, vars))
+#        return frames
 
 
 class WSGIApplication(webapp.WSGIApplication):
@@ -254,18 +272,26 @@ class WSGIApplication(webapp.WSGIApplication):
             (app_name, app_controller) = rule['run'].split('.', 1)
             try:
                 result = request.run_controller(app_name, app_controller, **url_params)
-            except Exception, e:
-                result = request.handle_exception(e)
-            if request.redirect_url:
-                uri, permanent = request.redirect_url
+            except Request.REDIRECT, err:
+                uri, permanent = err.destintion, err.permanent
                 response.set_status(permanent and 301 or 302)
                 absolute_url = urlparse.urljoin(request.uri, uri)
                 response.headers['Location'] = str(absolute_url)
                 response.clear()
-            elif request.status_code: # specific status code - error appear
-                response.set_status(request.status_code)
+            except Request.ACCESS_DENIED:
+                response.set_status(403)
                 response.clear()
-            response.out.write(result)
+            except Request.PAGE_NOT_FOUND:
+                response.set_status(404)
+                response.clear()
+            except:
+                response.set_status(500)
+                response.clear()
+                if self.__debug:
+                    traceback_message = ''.join(traceback.format_exception(*sys.exc_info()))
+                    response.out.write("<pre>%s</pre>" % traceback_message)
+            else:
+                response.out.write(unicode(result))
 
         response.wsgi_write(start_response)
         return ['']

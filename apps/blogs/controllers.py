@@ -46,7 +46,7 @@ def blog_edit(request, blog):
     blog_obj = Blog.get_by_key_name(blog)
     # item not found
     if blog_obj is None:
-        return request.error(404)
+        raise request.PAGE_NOT_FOUND
     if request.POST:
         # filled form
         form = BlogEditForm(data=request.POST, instance=blog_obj)
@@ -64,7 +64,7 @@ def blog_delete(request, blog):
     blog_obj = Blog.get_by_key_name(blog)
     # item not found
     if blog_obj is None:
-        return request.error(404)
+        raise request.PAGE_NOT_FOUND
     # delete blog
     blog_obj.delete()
     return request.redirect("go back")
