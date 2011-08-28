@@ -12,7 +12,7 @@
   </p>
 
   <p>
-    If you have not an account than <a href="/user/registration?previous_page={{ current_page }}">{% translate "create new account" %}</a>.
+    If you have not an account than <a href="{% url user.registration %}?previous_page={{ current_page }}">{% translate "create new account" %}</a>.
   </p>
 
   {% login_form %}
