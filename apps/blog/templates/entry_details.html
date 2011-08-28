@@ -5,9 +5,21 @@
 
 {% block base_description %}{{ entry.description }}{% endblock %}
 
+{% block sidebar %}
+  <div class="blog entries">
+    <h3>{% translate "Latest entries" %}</h3>
+    {% get_recent_entries as recent_entries %}
+    {% for entry in recent_entries %}
+      <p {% if forloop.last %}class="last"{% endif %}><a href="{% url blog.entry_details entry=entry %}">{{ entry.title }}</a></p>
+    {% empty %}
+      <p class="last">{% translate "No entries" %}</p>
+    {% endfor %}
+  </div>
+{% endblock %}
+
 {% block content %}
   <div class="blog entry">
-    <h1>{{ entry.title }}</h1>
+    <h1>{{ entry.title }} <g:plusone size="small"></g:plusone></h1>
 
     <blockquote>
       {% if entry.description %}
@@ -40,17 +52,9 @@
     </div>
   </div>
 
-  {% comment %}
-  {% get_comment_count for entry as comment_count %}
-  <div>
-    <h3><a name="comment_list">{% translate "Comments" %} ({{ comment_count }})</a></h3>
-    {% render_comment_list for entry %}
-    <a href="">Show all comments</a><br>
-    <a href="">Add new comment</a>
+  <div class="comments">
+    <h3><a name="comment_list">{% translate "Comments" %}</a></h3>
+    <div id="fb-root"></div><script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script><fb:comments href="{{ request.host_url }}{{ current_page }}" num_posts="5" width="640"></fb:comments>
   </div>
-  <div>
-    <h3><a name="add_comment">{% translate "Add comment" %}</a></h3>
-    {% render_comment_form for entry %}
-  </div>
-  {% endcomment %}
+
 {% endblock %}
