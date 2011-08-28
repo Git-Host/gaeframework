@@ -1,7 +1,7 @@
+import logging
 from django.template.loader import render_to_string
 from gae import template
 from gae.tags import node_rule, BaseNode
-import logging
 
 register = template.create_template_register()
 
@@ -13,5 +13,5 @@ def show_banner(self, context):
         return render_to_string("banner/%s.html" % self.adv_name,
                                 context_instance = context)
     except Exception:
-        logging.warning("Banner '%s' not found", self.adv_name)
+        logging.warning("Banner '%s' not found" % self.adv_name)
         return ''
