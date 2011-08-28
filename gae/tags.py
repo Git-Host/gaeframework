@@ -1,10 +1,10 @@
 import logging, types, re
-from gae import template, webapp, db
 from django.template import TemplateSyntaxError, InvalidTemplateLibrary, VariableDoesNotExist
 from django.template.defaultfilters import stringfilter
 from django.template.defaulttags import LoadNode
 from django.template import get_library
 from django import template as django_template
+from gae import template, webapp, db
 from gae.tools.translation import translate as _
 from gae.config import get_config
 from gae.tools import prepare_url_vars

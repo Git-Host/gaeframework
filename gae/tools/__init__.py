@@ -8,7 +8,7 @@ def installed_apps():
     '''
     global _installed_apps
     if not _installed_apps:
-        _installed_apps = [app for app in os.listdir('.') if os.path.isdir(app) and not app.startswith("_") and app != 'gae']
+        _installed_apps = [app for app in os.listdir('apps') if os.path.isdir(os.path.join('apps', app)) and not app.startswith("_")]
     return _installed_apps
 
 def monkey_patch(name, bases, namespace):

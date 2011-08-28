@@ -13,7 +13,7 @@ from gae.tools import installed_apps
 fs_encoding = sys.getfilesystemencoding() or sys.getdefaultencoding()
 app_template_dirs = {}
 for app in installed_apps():
-    template_dir = os.path.join(app, 'templates')
+    template_dir = os.path.join('apps', app, 'templates')
     if os.path.isdir(template_dir):
         app_template_dirs[app] = template_dir.decode(fs_encoding)
 
