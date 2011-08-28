@@ -1,6 +1,6 @@
 from django.utils import simplejson
-from location.models import City
-#from user import login_required
+from apps.location.models import City
+#from apps.user import login_required
 
 def cities_list(request):
     '''Return cities list'''
@@ -13,4 +13,4 @@ def cities_list(request):
     if request.is_xhr:
         request.response.headers.add_header("Content-Type", 'application/json')
         return simplejson.dumps(cities or [])
-    return request.render('location/cities_list', {'cities': cities})
+    return request.render('location/cities_list', cities = cities)

@@ -1,10 +1,10 @@
 '''
 Comments - attach comments to any object.
 '''
-from comments.forms import UserCommentForm
-from user import login_required
-from gae import db
 import re
+from gae import db
+from apps.comments.forms import UserCommentForm
+from apps.user import login_required
 
 @login_required()
 def create_comment(request):
@@ -30,9 +30,10 @@ def create_comment(request):
         form = UserCommentForm(data=data, initial={"obj": object_key})
         # preview the comment
         if "preview" in data or not form.is_valid():
-            return request.render('comments/preview', {
-                              "form":     form,
-                              "comment":  form.data.get("text", ""),
-                              })
+            return request.render(
+                'comments/preview',
+                form = form,
+                comment = form.data.get("text", ""),
+            )
         form.save()
     return request.redirect("go back")

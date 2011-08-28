@@ -1,12 +1,12 @@
 '''
 Test application.
 '''
-from models import Message
-from forms import MessageForm
+from apps.guestbook.models import Message
+from apps.guestbook.forms import MessageForm
 
 def items_list(request, on_page=10, page=1, template=None):
     greetings = Message.all().order('-date').fetch(on_page)
-    return request.render(template or 'guestbook/items_list', {'greetings': greetings})
+    return request.render(template or 'guestbook/items_list', greetings = greetings)
 
 def create_item(request):
     if request.POST:
@@ -19,4 +19,4 @@ def create_item(request):
         # empty form
         form = MessageForm()
     # show form with specified data
-    return request.render('guestbook/create_item', {'form': form})
+    return request.render('guestbook/create_item', form = form)

@@ -1,5 +1,5 @@
 from gae import forms
-from models import Todo
+from apps.todo.models import Todo
 
 class TodoForm(forms.ModelForm):
     class Meta:

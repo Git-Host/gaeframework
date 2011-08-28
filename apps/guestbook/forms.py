@@ -1,5 +1,5 @@
 from gae import forms
-from models import Message
+from apps.guestbook.models import Message
 
 class MessageAdminForm(forms.ModelForm):
     class Meta:

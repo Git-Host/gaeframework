@@ -1,7 +1,7 @@
 from django.template.loader import render_to_string
 from gae import template
 from gae.tags import node_rule, BaseNode
-from user.forms import UserLoginForm, UserRegistrationForm
+from apps.user.forms import UserLoginForm, UserRegistrationForm
 
 register = template.create_template_register()
 

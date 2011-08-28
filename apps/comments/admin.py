@@ -1,7 +1,7 @@
 '''
 Administration interface.
 '''
-from comments.forms import CommentAdminForm, CommentInlineAdminForm
+from apps.comments.forms import CommentAdminForm, CommentInlineAdminForm
 
 class Comment():
     name = "Comments list"

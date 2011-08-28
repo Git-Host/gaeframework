@@ -12,7 +12,7 @@ class User(db.UniqueModel, db.Model):
     roles       = db.StringListProperty()
 
     def has_role(self, role):
-        # predefined users in project config file
+        # predefined user in project config file
         if self.nick in get_config('user.%ss' % role, []):
             return True
         if self.roles and role in self.roles:

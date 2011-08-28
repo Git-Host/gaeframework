@@ -1,5 +1,5 @@
 from gae import forms
-from location.models import Country, Region, City
+from apps.location.models import Country, Region, City
 
 class CountryCreateForm(forms.ModelForm):
     class Meta:

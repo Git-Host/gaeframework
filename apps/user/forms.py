@@ -1,5 +1,5 @@
 from gae import forms
-from user.models import User
+from apps.user.models import User
 
 class UserLoginForm(forms.ModelForm):
     '''Login form'''

@@ -1,5 +1,5 @@
 from gae import db
-from user import get_current_user
+from apps.user import get_current_user
 
 class Todo(db.Model):
     author           = db.UserProperty(auto_current_user_add=True, required=True)

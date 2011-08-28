@@ -3,9 +3,9 @@ Blogs - multiple blogs in one application
 ''' 
 from gae.tools.pagination import Pagination
 from gae.shortcuts import get_object_or_404
-from user import login_required
-from blog.models import Entity
-from blog.forms import EntityCreateForm, EntityEditForm
+from apps.user import login_required
+from apps.blog.models import Entity
+from apps.blog.forms import EntityCreateForm, EntityEditForm
 
 def entries_list(request, tags=None):
     entries = Entity.all().order('-changed')
@@ -22,14 +22,14 @@ def entries_list(request, tags=None):
     else:
         entries.filter('active', True)
     # render page
-    return request.render('blog/entries_list', {
-                      'entries': Pagination(request, entries, 10, "entries_page"),
-                      })
+    return request.render(
+        'blog/entries_list',
+        entries = Pagination(request, entries, 10, "entries_page"),
+    )
 
 def entry_details(request, entry):
     entry_obj = get_object_or_404(Entity, slug=entry)
-    return request.render('blog/entry_details', {
-                      'entry': entry_obj})
+    return request.render('blog/entry_details', entry = entry_obj)
 
 @login_required()
 def create_entry(request):
@@ -43,7 +43,7 @@ def create_entry(request):
         # empty form
         form = EntityCreateForm()
     # render page
-    return request.render('blog/create_entry', {'form': form})
+    return request.render('blog/create_entry', form = form)
 
 @login_required()
 def edit_entry(request, entry):
@@ -59,7 +59,7 @@ def edit_entry(request, entry):
         tags = ", ".join(entry_obj.tags or [])
         form = EntityEditForm(instance=entry_obj, initial={"tags": tags})
     # render page
-    return request.render('blog/edit_entry', {'form': form})
+    return request.render('blog/edit_entry', form = form)
 
 @login_required()
 def delete_entry(request, entry):

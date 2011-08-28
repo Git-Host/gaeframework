@@ -1,8 +1,8 @@
 from django.template.loader import render_to_string
 from gae import template
 from gae.tags import node_rule, BaseNode
-from comments.models import Comment
-from comments.forms import UserCommentForm
+from apps.comments.models import Comment
+from apps.comments.forms import UserCommentForm
 
 register = template.create_template_register()
 

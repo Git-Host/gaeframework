@@ -1,5 +1,5 @@
 from gae import forms
-from blog.models import Blog, Entity
+from apps.blogs.models import Blog, Entity
 
 class BlogCreateForm(forms.ModelForm):
     class Meta:
