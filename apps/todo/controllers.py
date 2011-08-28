@@ -2,17 +2,18 @@
 Todo - list of actual tasks.
 '''
 from google.appengine.api import mail
-from user import login_required
-from todo.models import Todo
-from todo.forms import TodoForm
+from apps.user import login_required
+from apps.todo.models import Todo
+from apps.todo.forms import TodoForm
 
 def todo_list(request, on_page=10, page=1, finished=False):
     todos = Todo.gql("WHERE author = :1 and finished = :2",
                      request.user, finished)
-    return request.render('todo/todo_list', {
-                      'todos': todos,
-                      'todos_pages' : todos.count(),
-                      })
+    return request.render(
+        'todo/todo_list',
+        todos = todos,
+        todos_pages = todos.count(),
+    )
 
 def todo_details(request):
     pass
@@ -31,7 +32,7 @@ def create_task(request):
         # empty form
         form = TodoForm()
     # render page
-    return request.render('todo/create_task', {'form': form})
+    return request.render('todo/create_task', form = form)
 
 @login_required()
 def edit_todo(request):

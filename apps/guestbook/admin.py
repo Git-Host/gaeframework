@@ -1,7 +1,7 @@
 '''
 Administration interface.
 '''
-from guestbook.forms import MessageAdminForm, MessageInlineAdminForm
+from apps.guestbook.forms import MessageAdminForm, MessageInlineAdminForm
 
 class Message():
     name = "Guestbook messages list"

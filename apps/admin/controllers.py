@@ -3,9 +3,9 @@ Site aministration
 '''
 import os
 from gae import forms
-from gae.tools.pagination import Pagination
-from user import login_required
 from gae.tools import installed_apps
+from gae.tools.pagination import Pagination
+from apps.user import login_required
 
 """
 TODO: hide in SelfReferenceProperty option reference to current object
@@ -38,19 +38,21 @@ def apps_list(request):
     # get list of all models in each application
     for app_name in apps:
         apps_models.append((app_name, _models_list(app_name)))
-    return request.render("admin/apps_list", {
-        'apps': apps_models,
-        })
+    return request.render(
+        "admin/apps_list",
+        apps = apps_models,
+    )
 
 @login_required('admin')
 def models_list(request, app_name):
     '''
     Show list of objects in specified application.
     '''
-    return request.render('admin/models_list', {
-        'managed_app': app_name,
-        'models': _models_list(app_name),
-        })
+    return request.render(
+        'admin/models_list',
+        managed_app = app_name,
+        models = _models_list(app_name),
+    )
 
 @login_required('admin')
 def model_records(request, app_name, model_name):
@@ -69,13 +71,14 @@ def model_records(request, app_name, model_name):
     model = inline_form.Meta.model
     fields = [{'name': field_name, 'type': getattr(model, field_name).__class__.__name__[0:-8]} for field_name in inline_form().fields.keys()]
     items = model.all() # get list of records
-    return request.render('admin/model_records', {
-        'managed_app': app_name,
-        'model': model_name,
-        'model_name': hasattr(config, "name") and config.name or model_name,
-        'records': Pagination(request, items, 20),
-        'fields': fields
-        })
+    return request.render(
+        'admin/model_records',
+        managed_app = app_name,
+        model = model_name,
+        model_name = hasattr(config, "name") and config.name or model_name,
+        records = Pagination(request, items, 20),
+        fields = fields,
+    )
 
 @login_required('admin')
 def create_record(request, app_name, model_name):
@@ -98,12 +101,13 @@ def create_record(request, app_name, model_name):
     else:
         form = Form()
     # render page
-    return request.render('admin/create_record', {
-        'managed_app': app_name,
-        'model': model_name,
-        'model_name': hasattr(config, "name") and config.name or model_name,
-        'form': form,
-        })
+    return request.render(
+        'admin/create_record',
+        managed_app = app_name,
+        model = model_name,
+        model_name = hasattr(config, "name") and config.name or model_name,
+        form = form,
+    )
 
 @login_required('admin')
 def edit_record(request, app_name, model_name, record_key):
@@ -131,13 +135,14 @@ def edit_record(request, app_name, model_name, record_key):
     else:
         form = Form(instance=record)
     # render page
-    return request.render('admin/edit_record', {
-        'managed_app': app_name,
-        'model': model_name,
-        'model_name': hasattr(config, "name") and config.name or model_name,
-        'record': record,
-        'form': form,
-        })
+    return request.render(
+        'admin/edit_record',
+        managed_app = app_name,
+        model = model_name,
+        model_name = hasattr(config, "name") and config.name or model_name,
+        record = record,
+        form = form,
+    )
 
 @login_required('admin')
 def delete_record(request, app_name, model_name, record_key=None):

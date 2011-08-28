@@ -1,5 +1,5 @@
 from gae import forms
-from blog.models import Entity, Tag
+from apps.blog.models import Entity, Tag
 
 class EntityForm(forms.ModelForm):
     tags = forms.CharField(max_length=100, min_length=3, required=False)

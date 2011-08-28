@@ -1,5 +1,5 @@
 from gae import forms
-from comments.models import Comment
+from apps.comments.models import Comment
 
 class CommentAdminForm(forms.ModelForm):
     class Meta:

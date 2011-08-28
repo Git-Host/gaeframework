@@ -1,13 +1,13 @@
 '''
 User account management.
 '''
-from user.forms import UserLoginForm, UserRegistrationForm
-from user.models import User
-from user import login_required
+from apps.user.forms import UserLoginForm, UserRegistrationForm
+from apps.user.models import User
+from apps.user import login_required
 
 
 def users_list(request):
-    return request.render('user/users_list', {'users': User.all().order("-created")})
+    return request.render('user/users_list', users = User.all().order("-created"))
 
 
 def login(request):
@@ -29,7 +29,7 @@ def login(request):
     else:
         # empty form
         form = UserLoginForm()
-    return request.render('user/login', {'form': form})
+    return request.render('user/login', form = form)
 
 @login_required()
 def logout(request):
@@ -54,7 +54,7 @@ def registration(request):
     else:
         # empty form
         form = UserRegistrationForm()
-    return request.render('user/registration', {'form': form})
+    return request.render('user/registration', form = form)
 
 def activate(request, account_id):
     '''Activate already registered user account'''

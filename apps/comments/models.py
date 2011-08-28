@@ -1,5 +1,5 @@
 from gae import db
-from user import get_current_user
+from apps.user import get_current_user
 
 class Comment(db.Model):
 #    """

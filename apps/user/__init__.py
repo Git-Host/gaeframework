@@ -1,7 +1,7 @@
 import logging
 from gae.sessions import get_current_session
 from gae.config import get_config
-from user.models import User
+from apps.user.models import User
 
 def get_current_user():
     '''Return current user; otherwise return unautorized user object'''

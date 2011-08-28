@@ -2,7 +2,7 @@ from django.template.loader import render_to_string
 from gae import template
 from gae.markup import Wiki
 from gae.tags import node_rule, BaseNode
-from blogs.models import Blog, Entity
+from apps.blogs.models import Blog, Entity
 
 register = template.create_template_register()
 

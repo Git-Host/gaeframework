@@ -1,12 +1,12 @@
 '''
 Blogs - multiple blogs in one application
 ''' 
-from user import login_required
 from gae.shortcuts import get_object_or_404
-from blog.models import Blog, Entity
-from blog.forms import BlogCreateForm, BlogEditForm,\
-                            EntityCreateForm, EntityEditForm
 from gae.tools.pagination import Pagination
+from apps.user import login_required
+from apps.blogs.models import Blog, Entity
+from apps.blogs.forms import BlogCreateForm, BlogEditForm,\
+                             EntityCreateForm, EntityEditForm
 
 ''' operations with blogs '''
 
@@ -23,9 +23,10 @@ def blogs_list(request):
     else:
         blogs.filter('active', True)
     # render page
-    return request.render('blog/blogs_list', {
-                      'blogs': Pagination(request, blogs, 20, "blogs_page"),
-                      })
+    return request.render(
+        'blog/blogs_list',
+        blogs = Pagination(request, blogs, 20, "blogs_page"),
+    )
 
 @login_required()
 def blog_create(request):
@@ -39,7 +40,7 @@ def blog_create(request):
         # empty form
         form = BlogCreateForm()
     # render page
-    return request.render('blog/blog_create', {'form': form})
+    return request.render('blog/blog_create', form = form)
 
 @login_required()
 def blog_edit(request, blog):
@@ -57,7 +58,7 @@ def blog_edit(request, blog):
         # empty form with initial data
         form = BlogEditForm(instance=blog_obj)
     # render page
-    return request.render('blog/blog_edit', {'form': form})
+    return request.render('blog/blog_edit', form = form)
 
 @login_required()
 def blog_delete(request, blog):
@@ -89,18 +90,21 @@ def entities_list(request, blog=None, tags=None):
     else:
         entities.filter('active', True)
     # render page
-    return request.render('blog/entities_list', {
-                      'blog': blog_obj,
-                      'entities': Pagination(request, entities, 20, "entities_page"),
-                      })
+    return request.render(
+        'blog/entities_list',
+        blog = blog_obj,
+        entities = Pagination(request, entities, 20, "entities_page"),
+    )
 
 def entity_details(request, blog, entity):
     blog_obj = get_object_or_404(Blog, slug=blog)
     entity_obj = get_object_or_404(Entity, slug="%s/%s" % (blog_obj.key().name(), entity))
     # render page
-    return request.render('blog/entity_details', {
-                      'blog': blog_obj,
-                      'entity': entity_obj})
+    return request.render(
+        'blog/entity_details',
+        blog = blog_obj,
+        entity = entity_obj,
+    )
 
 @login_required()
 def entity_create(request, blog):
@@ -115,7 +119,7 @@ def entity_create(request, blog):
         # empty form
         form = EntityCreateForm()
     # render page
-    return request.render('blog/entity_create', {'form': form})
+    return request.render('blog/entity_create', form = form)
 
 @login_required()
 def entity_edit(request, blog, entity):
@@ -131,7 +135,7 @@ def entity_edit(request, blog, entity):
         # empty form with initial data
         form = EntityEditForm(instance=entity_obj)
     # render page
-    return request.render('blog/entity_edit', {'form': form})
+    return request.render('blog/entity_edit', form = form)
 
 @login_required()
 def entity_delete(request, blog, entity):
