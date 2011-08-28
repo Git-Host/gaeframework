@@ -1,5 +1,12 @@
 /* Blog application */
 
+DIV.comments {
+  margin-top: 25px;
+}
+DIV.comments > H3 > A {
+  color: inherit;
+}
+
 /* Entities list */
 .blog.entry {
   margin-bottom: 10px;
