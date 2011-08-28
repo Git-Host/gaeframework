@@ -17,16 +17,6 @@
     </p>
   </div>
   {% endif %}
-
-  <div class="blog entries">
-    <h3>{% translate "Latest entries" %}</h3>
-    {% get_recent_entries as recent_entries %}
-    {% for entry in recent_entries %}
-      <p {% if forloop.last %}class="last"{% endif %}><a href="{% url blog.entry_details entry=entry %}">{{ entry.title }}</a></p>
-    {% empty %}
-      <p class="last">{% translate "No entries" %}</p>
-    {% endfor %}
-  </div>
 {% endblock %}
 
 {% block content %}
