@@ -1,4 +1,4 @@
-<form method="POST" action="/user/registration" class="user registration">
+<form method="POST" action="{% url user.registration %}" class="user registration">
   <input type="hidden" name="previous_page"  value="{% if app == "user" %}{{ previous_page }}{% else %}{{ current_page }}{% endif %}">
 
   {{ form.nick.errors }}
