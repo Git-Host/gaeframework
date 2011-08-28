@@ -2,19 +2,18 @@ import os, sys, urllib, re, logging, webob, urlparse, traceback
 from google.appengine.dist import use_library
 use_library('django', '1.2')
 from google.appengine.ext import webapp
-from gae.sessions import SessionMiddleware
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext.appstats import recording
 from google.appengine.ext import db
 from google.appengine.api.app_identity import get_application_id
 from django.conf import settings as django_settings
 from django.utils import simplejson
-from gae.sessions import get_current_session
+from gae.sessions import SessionMiddleware, get_current_session
 from gae.config import get_config
 from gae.tools import prepare_url_vars, installed_apps
 from gae.exceptions import AccessDenied, PageNotFound, Redirect, IncorrectUrlDefinition
 from gae import template
-from user import get_current_user
+from apps.user import get_current_user
 
 
 class Content:
@@ -33,7 +32,7 @@ class Content:
 
     def __unicode__(self):
         if self.template:
-            return template.render(self.template, self.data)
+            return template.render(self.template, self.data, WSGIApplication.debug)
         elif self.mime_type == "json":
             return simplejson.dumps(self.data)
         elif self.mime_type == "xml":
@@ -66,8 +65,7 @@ class Request(webapp.Request):
         
         Result send to user.
         '''
-#        self.app_name = app_name
-        module = __import__("%s.controllers" % app_name, {}, {}, ["controllers"])
+        module = __import__("apps.%s.controllers" % app_name, {}, {}, ["controllers"])
         controller = getattr(module, controller_name)
         return controller(self, **params)
 
@@ -121,6 +119,7 @@ class Request(webapp.Request):
         template_name += '.html'
         # set predefined values to template
 #        variables['app'] = self.app_name
+        variables['request'] = self
         variables['user'] = self.user
         variables['session'] = self.session
         variables['previous_page'] = self.previous_page
@@ -226,11 +225,13 @@ class WSGIApplication(webapp.WSGIApplication):
     _urls = []
     _project_dir = None
     active_instance = None
+    debug = property(lambda self: self.__debug)
     
     def __init__(self, project_dir, debug=False):
         self.__debug = debug
         self.current_request_args = ()
         self._project_dir = project_dir
+        # TODO: if urls have errors than traceback printed on live server
         self.load_urls()
         self.load_models()
         self.prepare_template_engine()
@@ -287,9 +288,12 @@ class WSGIApplication(webapp.WSGIApplication):
             except:
                 response.set_status(500)
                 response.clear()
+                traceback_message = ''.join(traceback.format_exception(*sys.exc_info()))
                 if self.__debug:
-                    traceback_message = ''.join(traceback.format_exception(*sys.exc_info()))
                     response.out.write("<pre>%s</pre>" % traceback_message)
+                else:
+                    logging.error("Run %s.%s" % (app_name, app_controller))
+                    logging.error(traceback_message)
             else:
                 response.out.write(unicode(result))
 
@@ -309,9 +313,9 @@ class WSGIApplication(webapp.WSGIApplication):
             return False
         for app_name in installed_apps():
             try:
-                app_models = __import__("%s.models" % app_name, {}, {}, ["models"])
+                app_models = __import__("apps.%s.models" % app_name, {}, {}, ["models"])
             except ImportError, e:
-                logging.warning("File '%s/models.py' not loaded. %s" % (app_name, e))
+                logging.warning("File 'apps/%s/models.py' not loaded. %s" % (app_name, e))
                 continue
             models = [getattr(app_models, model_name) for model_name in dir(app_models) if not model_name.startswith("_") and model_name[0].isupper()]
             for model in models:
@@ -331,7 +335,6 @@ class WSGIApplication(webapp.WSGIApplication):
                 rule['compiled_url'] = re.compile("%s" % rule['url'])
         except Exception, err:
             logging.error("Error in urls mapping (rule %r). Error: %s" % (rule['url'], err))
-            # delete urls because we have errors
             self._urls = []
         return True
 
@@ -380,7 +383,7 @@ class WSGIApplication(webapp.WSGIApplication):
             # register template tags for each  application
             for app_name in installed_apps():
                 try:
-                    mod = __import__("%s.tags" % app_name, globals(), {}, app_name)
+                    mod = __import__("apps.%s.tags" % app_name, globals(), {}, app_name)
                     template.django.template.libraries[app_name] = mod.register
                 except ImportError:
                     pass
