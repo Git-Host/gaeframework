@@ -35,7 +35,9 @@ Commands:
   debug [project]           Run project shell to debug code.
       --remote              Work with remote datastore (on server).
   new [project]             Create new project.
+      --replace             Create new project in existing directory.
   new [project].[app]       Create new application in given project.
+      --replace             Replace already created application.
   install [project].[app]   Create symlink to application into 'apps'.
   test [project]            Run tests for project.
   test [project].[app]      Run tests for application in given project.""" % app_name
@@ -68,7 +70,7 @@ def create_app(project_name, app_name):
     Create new application (if not exists)
     '''
     app_dir_source = os.path.join(gae_dir, 'sceleton', 'app')
-    app_dir_destination = os.path.join(os.getcwd(), project_name, app_name)
+    app_dir_destination = os.path.join(os.getcwd(), project_name, 'apps', app_name)
     # copy application directory
     if os.path.exists(app_dir_destination):
         print '%s.%s application already exists' % (project_name, app_name)
@@ -85,7 +87,7 @@ def install_app(project_name, app_name):
     Create symlink to application located in 'apps' package (if this application not installed)
     '''
     app_dir_source = os.path.join(os.path.dirname(gae_dir), 'apps', app_name)
-    app_dir_destination = os.path.join(os.getcwd(), project_name, app_name)
+    app_dir_destination = os.path.join(os.getcwd(), project_name, 'apps', app_name)
     # check application in 'apps' package
     if not os.path.exists(app_dir_source):
         print '%s application not available to installation' % app_name
