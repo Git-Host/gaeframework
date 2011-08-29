@@ -40,7 +40,7 @@ with open('README') as file:
 
 setup(
     name = "gaeframework",
-    version = "2.0.9",
+    version = "2.0.10",
     author = "Anton Danilchenko",
     author_email = "anton.danilchenko@gaeframework.com",
     description = "GAE framework is a Python web framework for use on Google App Engine",
