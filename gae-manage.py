@@ -37,21 +37,23 @@ Commands:
   new [project]             Create new project.
       --replace             Create new project in existing directory.
   new [project].[app]       Create new application in given project.
-      --replace             Replace already created application.
   install [project].[app]   Create symlink to application into 'apps'.
   test [project]            Run tests for project.
   test [project].[app]      Run tests for application in given project.""" % app_name
 
 
-def create_project(project_name):
+def create_project(project_name, replace=False):
     '''
-    Create new project (if not exists)
+    Create new project (if not exists).
+    
+    Args:
+        replace - Create new project in existing directory.
     '''
     gae_destination = os.path.join(os.getcwd(), project_name, 'gae')
     project_dir_source = os.path.join(gae_dir, 'sceleton', 'project')
     project_dir_destination = os.path.join(os.getcwd(), project_name)
     # copy project directory
-    if os.path.exists(project_dir_destination):
+    if os.path.exists(project_dir_destination) and not replace:
         print '%s project already exists' % project_name
         return False
     copytree(project_dir_source, project_dir_destination)
@@ -60,7 +62,7 @@ def create_project(project_name):
     # replace placeholder to project name
     replace_text(project_dir_destination, "[project_name]", project_name, recurcive=True)
     print '%s project created' % project_name
-    # inslatt required applications
+    # install required applications
     install_app(project_name, 'user')
     return True
 
@@ -196,12 +198,13 @@ def main(command, project_name, *args):
         remote = "--remote" in args
         debug_project(project_name, remote=remote)
     elif command == "new":
+        replace = "--replace" in args
         try:
             project_name, app_name = project_name.split('.', 1)
             create_project(project_name)
             create_app(project_name, app_name)
         except ValueError:
-            create_project(project_name)
+            create_project(project_name, replace=replace)
     elif command == "install":
         try:
             project_name, app_name = project_name.split('.', 1)
