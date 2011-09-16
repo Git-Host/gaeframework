@@ -1,5 +1,1 @@
 cron:
-
-- description: Do something useful
-  url: /_ah/cron
-  schedule: every 1 minutes
