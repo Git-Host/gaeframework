@@ -1,4 +1,4 @@
-import os, sys, urllib, re, logging, webob, urlparse, traceback
+import os, sys, cgi, urllib, re, logging, urlparse
 from google.appengine.dist import use_library
 use_library('django', '1.2')
 from google.appengine.ext import webapp
@@ -10,7 +10,8 @@ from django.conf import settings as django_settings
 from django.utils import simplejson
 from gae.sessions import SessionMiddleware, get_current_session
 from gae.config import get_config
-from gae.tools import prepare_url_vars, installed_apps
+from gae.tools import installed_apps
+from gae.tools.urls import prepare_url_vars
 from gae.exceptions import AccessDenied, PageNotFound, Redirect, IncorrectUrlDefinition
 from gae import template
 from apps.user import get_current_user
@@ -144,81 +145,6 @@ class Request(webapp.Request):
     def installed_apps(self):
         return installed_apps()
 
-#    def handle_exception(self, exception):
-#        """
-#        Called if this handler throws an exception during execution.
-#        
-#        Args:
-#          exception: the exception that was thrown
-#        """
-#        # show error page for user
-#        if not self.__debug:
-#            if self.status_code is not None and int(self.status_code) != 200:
-#                return self.render("site/%s" % self.status_code)
-#            return None
-#        # show detailed error traceback
-#        try:
-#            errors = {"request": self,
-#                      "error": "%s: %s" % (sys.exc_info()[0].__name__, sys.exc_info()[1]),
-#                      "status_code": self.status_code,
-#                      "traceback": self._traceback_info()}
-#            # render page with status code on errors
-#            return self.render("site/debug", errors)
-#        except TypeError, e:
-#            logging.warning("Template '%s' not found" % e)
-#        except (TypeError, Exception), e:
-#            logging.warning(e)
-#        # print raw traceback (without insert to 500 template)
-#        errors_html = ""
-#        for error_name, error_details in errors.items():
-#            if type(error_details) in (tuple, dict, list):
-#                errors = []
-#                for frame, vars in error_details:
-#                    errors.append("%s\n%s" % (
-#                                  "%s (line %s) in %s" % (frame['func'], frame['line'], frame['file']),
-#                                  "\n".join(["  %s = %s" % (var_name, var_repr) for var_name, var_repr, var_value in vars])))
-#                error_details = "\n".join(errors)
-#            errors_html += "<div class='%(error_name)s'>"\
-#                "<h2>%(error_name)s</h2>"\
-#                "<pre>%(error_details)s</pre>"\
-#                "</div>" % {
-#                    "error_name": error_name.title(),
-#                    "error_details": error_details}
-#        # return error page
-#        return "<html><body>%s</html></body>" % errors_html
-
-#    def _traceback_info(self):
-#        """
-#        Print the usual traceback information, followed by a listing of all the
-#        local variables in each frame.
-#        """
-#        tb = sys.exc_info()[2]
-#        while 1:
-#            if not tb.tb_next: break
-#            tb = tb.tb_next
-#        stack = []
-#        f = tb.tb_frame
-#        while f:
-#            stack.append(f)
-#            f = f.f_back
-#        frames = []
-#        for frame in stack:
-#            vars = []
-#            for key, value in frame.f_locals.items():
-#                if key.startswith("__"): continue # not show special variables
-#                #We have to be careful not to cause a new error in our error
-#                #printer! Calling str() on an unknown object could cause an
-#                #error we don't want.
-#                try:
-#                    var_repr = repr(value)
-#                    var_value = unicode(value)
-#                    vars.append((key, var_repr, var_value if value != var_value and var_value != var_repr else None))
-#                except:
-#                    pass
-#            frame_info = {"func": frame.f_code.co_name, "file": frame.f_code.co_filename, "line": frame.f_lineno}
-#            frames.append((frame_info, vars))
-#        return frames
-
 
 class WSGIApplication(webapp.WSGIApplication):
     REQUEST_CLASS = Request
@@ -231,7 +157,7 @@ class WSGIApplication(webapp.WSGIApplication):
         self.__debug = debug
         self.current_request_args = ()
         self._project_dir = project_dir
-        # TODO: if urls have errors than traceback printed on live server
+        # FIXME: if urls have errors than traceback printed on live server
         self.load_urls()
         self.load_models()
         self.prepare_template_engine()
@@ -273,6 +199,9 @@ class WSGIApplication(webapp.WSGIApplication):
             (app_name, app_controller) = rule['run'].split('.', 1)
             try:
                 result = request.run_controller(app_name, app_controller, **url_params)
+                if not isinstance(result, Content):
+                    raise Exception, "Received not Content instance"
+                response.out.write(unicode(result))
             except Request.REDIRECT, err:
                 uri, permanent = err.destintion, err.permanent
                 response.set_status(permanent and 301 or 302)
@@ -288,14 +217,12 @@ class WSGIApplication(webapp.WSGIApplication):
             except:
                 response.set_status(500)
                 response.clear()
-                traceback_message = ''.join(traceback.format_exception(*sys.exc_info()))
+                traceback_message = self._get_traceback()
                 if self.__debug:
-                    response.out.write("<pre>%s</pre>" % traceback_message)
+                    response.out.write("<html><body><pre>%s</pre></body></html>" % traceback_message)
                 else:
                     logging.error("Run %s.%s" % (app_name, app_controller))
                     logging.error(traceback_message)
-            else:
-                response.out.write(unicode(result))
 
         response.wsgi_write(start_response)
         return ['']
@@ -387,6 +314,62 @@ class WSGIApplication(webapp.WSGIApplication):
                     template.django.template.libraries[app_name] = mod.register
                 except ImportError:
                     pass
+
+    def _get_traceback(self):
+        errors = {"request": self,
+                  "error": "%s: %s" % (sys.exc_info()[0].__name__, sys.exc_info()[1]),
+                  "traceback": self._traceback_info(),
+                  }
+        # print raw traceback
+        errors_formatted = ""
+        for error_name, error_details in sorted(errors.items()):
+            if type(error_details) in (tuple, dict, list):
+                errors = []
+                for frame, vars in error_details:
+                    frame['file'] = frame['file'].replace(self._project_dir + "/", "")
+                    errors.append("%s\n%s" % (
+                                  "%(func)s in %(file)s (line %(line)s)" % frame,
+                                  "\n".join(["  %s = %s" % (var_name, var_repr) for var_name, var_repr, var_value in vars])))
+                error_details = "\n".join(errors)
+            errors_formatted += \
+                "=== %s ===\n\n%s\n\n" % (
+                    error_name.title(),
+                    cgi.escape(unicode(error_details)).encode('ascii', 'xmlcharrefreplace')
+                )
+        # return error page
+        return errors_formatted
+        
+    def _traceback_info(self):
+        """
+        Return traceback followed by a listing of all the
+        local variables in each frame.
+        """
+        tb = sys.exc_info()[2]
+        while 1:
+            if not tb.tb_next: break
+            tb = tb.tb_next
+        stack = []
+        f = tb.tb_frame
+        while f:
+            stack.append(f)
+            f = f.f_back
+        frames = []
+        for frame in stack:
+            vars = []
+            for key, value in frame.f_locals.items():
+                if key.startswith("__"): continue # not show special variables
+                #We have to be careful not to cause a new error in our error
+                #printer! Calling str() on an unknown object could cause an
+                #error we don't want.
+                try:
+                    var_repr = repr(value)
+                    var_value = unicode(value)
+                    vars.append((key, var_repr, var_value if value != var_value and var_value != var_repr else None))
+                except:
+                    pass
+            frame_info = {"func": frame.f_code.co_name, "file": frame.f_code.co_filename, "line": frame.f_lineno}
+            frames.append((frame_info, vars))
+        return frames
 
 
 def run(project_dir, appstats=True, debug=None):

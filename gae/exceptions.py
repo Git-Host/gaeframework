@@ -18,8 +18,11 @@ class Redirect(Exception):
     
     def __str__(self):
         return self.destintion
-        
 
-class IncorrectUrlDefinition(Exception):
+class UrlNotFound(Exception):
+    '''Incorrect url'''
+    pass
+
+class IncorrectUrlDefinition(UrlNotFound):
     '''Incorrect url'''
     pass

@@ -4,4 +4,4 @@ urls:
 
 - url: create_item
   run: guestbook.create_item
-  tag: create_item
+  short_name: create_item
