@@ -10,24 +10,19 @@ Usage:
     language = get_config("site.language", "en")
 '''
 import os, yaml, copy
-from gae.tools import installed_apps
+from gae.tools import installed_apps, development_env
 __all__ = ["get_config"]
 
 
 class Config:
-    _already_loaded = False
     _apps_configs = {}
 
     def __init__(self):
-        # load project and all application configurations only once
-        if Config._already_loaded:
-            raise Exception, "For access to configuration please use get_config() function"
-        Config._already_loaded = True
         # get list of configuration files
         apps_configs = [(app_name, os.path.abspath(os.path.join('apps', app_name, "config.yaml"))) for app_name in installed_apps()]
         # load configuration files
         for app_name, app_config in apps_configs:
-            Config._apps_configs[app_name] = self._load_config(app_config)
+            self._apps_configs[app_name] = self._load_config(app_config)
 
     def _load_config(self, config_file):
         fd = open(config_file)
@@ -37,18 +32,19 @@ class Config:
 
     def get(self, path, default_value=None):
         '''Return configuration by given options path.
-            1. look in file "site/config.yaml" in section "apps"
-            2. else, look in file "[app_name]/config.yaml"
+            1. look in file "apps/site/config.yaml" in section "apps"
+            2. else, look in file "apps/[app_name]/config.yaml"
             3. else, return default_value 
 
         Usage:
             settings.get("user.admins")
-            settings.get("site.language", "default_value")
-
-        TODO: add support for dictionary lookup: settings["user.admins"]
-        TODO: if we pass only app_name than returned empty dictionary instead of None
+            settings.get("site.language", "en")
         '''
-        app_name, app_path = path.split('.', 1)
+        try:
+            app_name, app_path = path.split('.', 1)
+        except:
+            raise Exception("To get config you need call get_config('%s.option_name') "
+                            "instead of get_config('%s')" % (path, path))
         # search in site application
         config = self._apps_configs.get("site", {}).get("apps", {})
         for piece in path.split('.'):
@@ -62,12 +58,13 @@ class Config:
                 if config is None: break
         return copy.deepcopy(config) if config is not None else default_value
 
-_config = None
 
+_config = None
 def get_config(path=None, default_value=None):
     # create one copy of configuration
     global _config
-    if _config is None:
+    # doesn't cache config in development environment
+    if _config is None or development_env():
         _config = Config()
     # load given configuration options
     if path is not None:

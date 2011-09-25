@@ -1,7 +1,7 @@
 urls:
 - url: add
   run: comments.create_comment
-  tag: create_comment
+  short_name: create_comment
 
 #- url: comment/posted
 #  run: comments.comment_done
@@ -26,3 +26,13 @@ urls:
 
 #- url: comment/approved
 #  run: comments.approve_done
+
+
+widgets:
+  comments_list:
+    default:
+      can_create: true
+      can_create_anonymous: true
+      show_comments: true
+      show_comments_anonumous: true
+      

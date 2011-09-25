@@ -4,4 +4,4 @@ urls:
 
 - url: (app_name)/(action)
   run: api.run_api_method
-  tag: run_api_method
+  short_name: run_api_method

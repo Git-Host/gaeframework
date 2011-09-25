@@ -1,13 +1,12 @@
-import logging, types, re
-from django.template import TemplateSyntaxError, InvalidTemplateLibrary, VariableDoesNotExist
+import logging, types
+from django.template import VariableDoesNotExist
 from django.template.defaultfilters import stringfilter
-from django.template.defaulttags import LoadNode
-from django.template import get_library
 from django import template as django_template
-from gae import template, webapp, db
+from gae import template, db
 from gae.tools.translation import translate as _
-from gae.config import get_config
-from gae.tools import prepare_url_vars
+from gae.tools.urls import reverce_url
+from gae.template.tag_elif import do_if
+
 
 def node_rule(base_obj, rules):
     '''
@@ -23,6 +22,7 @@ def node_rule(base_obj, rules):
         tag_func.__name__ = handler_method.__name__
         return tag_func
     return wrap
+
 
 class BaseNode(django_template.Node):
     """Base class for simplify creation of template tags"""
@@ -103,50 +103,39 @@ class BaseNode(django_template.Node):
 
 
 class UrlNode(django_template.Node):
+    args = []
+    kwargs = {}
+    
     def __init__(self, tag_name, params):
         self.full_tag = "{%% %s %s %%}" % (tag_name, " ".join(params))
-        if len(params) == 0:
-            raise django_template.TemplateSyntaxError("You need pass arguments to 'url' template tag %s" % self.full_tag)
-        try:
-            self.app, self.tag = params[0].split('.')
-        except:
-            raise django_template.TemplateSyntaxError("You need pass first argument in format 'app_name.url_tag_name' for '%s'" % self.full_tag)
-        self.params = {}
-        if len(params) > 1:
+        self.url_short_name = params[0]
+        for param in params[1:]:
             try:
-                self.params = dict([param.split("=") for param in params[1:]])
+                name, value = param.split("=")
+                self.kwargs[name] = value
             except:
-                raise django_template.TemplateSyntaxError("You need pass arguments in format 'arg1=value1 arg2=value2' for '%s'" % self.full_tag)
+                self.args.append(param)
 
     def render(self, context):
-        # resolve variables
-        params = {}
-        for k, v in self.params.items():
-            params[k] = BaseNode.get_var(context, v)
-            if params[k] is None:
-                raise django_template.TemplateSyntaxError("Variable '%s' not defined for '%s'" % (v, self.full_tag))
-            # use key name or id if passed models object
-            if isinstance(params[k], db.Model):
-                params[k] = params[k].key().name() or params[k].key().id() or params[k].key()
-        # search in global urls mapping
-        for url in get_config("site.urls", []):
-            if url.get('run', "") == self.app:
-                url_prefix = url.get('url') or ""
-                # search in mapped application
-                for url in get_config("%s.urls" % self.app, []):
-                    if url.get('tag', "") == self.tag:
-                        return "/%s%s" % (url_prefix, self._make_url(url.get('url') or "", params))
-        # mapped action not found
-        raise django_template.TemplateSyntaxError("Url not found for '%s'" % self.full_tag)
+        '''Resolve variables and return complete url address'''
+        args = []
+        for value in self.args:
+            args.append(self._resolve_variable(context, value))
 
-    def _make_url(self, url, vars={}):
-        # convert url to style "%(blog)s/new"
-        url_with_placemarks = prepare_url_vars(url, "%%(%s)s")
-        try:
-            # insert values from dictionary to string
-            return url_with_placemarks % vars
-        except KeyError:
-            raise django_template.TemplateSyntaxError("Not all required arguments passed to '%s'" % self.full_tag)
+        kwargs = {}
+        for name, value in self.kwargs.items():
+            kwargs[name] = self._resolve_variable(context, value)
+        
+        return reverce_url(self.url_short_name, *args, **kwargs)
+
+    def _resolve_variable(self, context, name):
+        '''Return value for variable name'''
+        value = BaseNode.get_var(context, name)
+        # use key name or id if passed models instance
+        if isinstance(value, db.Model):
+            key = value.key()
+            value = key.name() or key.id() or key
+        return value
 
 
 register = template.create_template_register()
@@ -187,5 +176,4 @@ def pagination(self, context):
     paginator = self.get_var(context, self.paginator)
     return template.render('common/pagination.html', {"paginator": paginator})
 
-from gae.template.tag_elif import do_if
 register.tag("if", do_if)

@@ -1,4 +1,0 @@
-graft apps
-graft google_appengine
-graft gae
-global-exclude *.pyc *.pyo

@@ -1,5 +1,15 @@
-GAE framework helps you create web sites quickly on Google App Engine.
+GAE framwork - flexible web framework to build websites more quickly.
 
-GAE framework contains latest version of Google App Engine SDK.
+Visit www.gaeframework.com to get more information.
 
-Visit `home page <http://www.gaeframework.com>`_, read `documentation <https://docs.google.com/document/d/1GSls-lcfmhSeYFhHgmBVnwMQg0QRYWKepfNSt-0zCQY/edit>`_, `checkout <http://code.google.com/p/gaeframework/source/checkout>`_  source code, report `bugs <http://code.google.com/p/gaeframework/issues/list>`_.
+=== CHANGELOG ===
+
+GAE framework v2.0.11.
+
+  * (changed) Now in development environment configurations reloaded on each request
+  * (changed) Now all applications moved to "apps" directory
+  * (changed) Changed name of gae-manage.py to manage.py
+  * (changed) Urls mapping in config.yaml has changed attribute name from "tag" to "short_name"
+  * (changed) Improved traceback
+  * (new) Added reverce_url() method to gae.tools.urls module
+  * (deleted) Now we have not support pypi to install framework
