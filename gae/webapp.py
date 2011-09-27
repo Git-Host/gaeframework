@@ -150,6 +150,7 @@ class WSGIApplication(webapp.WSGIApplication):
     REQUEST_CLASS = Request
     _urls = []
     _project_dir = None
+    _errors = []
     active_instance = None
     debug = property(lambda self: self.__debug)
     
@@ -158,10 +159,13 @@ class WSGIApplication(webapp.WSGIApplication):
         self.current_request_args = ()
         self._project_dir = project_dir
         # FIXME: if urls have errors than traceback printed on live server
-        self.load_urls()
-        self.load_models()
-        self.prepare_template_engine()
-        WSGIApplication.active_instance = self
+        try:
+            self.load_urls()
+            self.load_models()
+            self.prepare_template_engine()
+            WSGIApplication.active_instance = self
+        except Exception, e:
+            self._errors.append(str(e))
         
     
     def __call__(self, environ, start_response):
@@ -170,6 +174,15 @@ class WSGIApplication(webapp.WSGIApplication):
         """
         request = self.REQUEST_CLASS(environ, self.__debug)
         response = self.RESPONSE_CLASS()
+        
+        if self._errors:
+            response.set_status(500)
+            error_page = self._get_error_page(500)
+            if error_page:
+                response.out.write(error_page)
+            response.wsgi_write(start_response)
+            return ['']
+        
         WSGIApplication.active_instance = self
         
         # search url address
@@ -225,12 +238,9 @@ class WSGIApplication(webapp.WSGIApplication):
 
         if response.has_error(): # show error page (404, 500)
             response.clear()
-            filename = os.path.join(self._project_dir, 'apps', 'site', 'templates', '%s.html' % response.status)
-            if os.path.exists(filename):
-                fd = open(filename, "r")
-                text = fd.read()
-                fd.close()
-                response.out.write(text)
+            error_page = self._get_error_page(response.status)
+            if error_page:
+                response.out.write(error_page)
 
         response.wsgi_write(start_response)
         return ['']
@@ -276,7 +286,7 @@ class WSGIApplication(webapp.WSGIApplication):
     def _map_urls(self, app_name, parent_rule={}):
         urls = []
         if app_name not in installed_apps():
-            raise Exception("Application %s is not available" % app_name)
+            raise Exception("Application %s is not exists" % app_name)
         for rule in get_config('%s.urls' % app_name, {}):
             if "url" not in rule:
                 raise Exception("Not defined 'url' argument in the urls mapping for application '%s'. Rule: %r" % (app_name, rule))
@@ -322,6 +332,18 @@ class WSGIApplication(webapp.WSGIApplication):
                     template.django.template.libraries[app_name] = mod.register
                 except ImportError:
                     pass
+
+    def _get_error_page(self, code):
+        '''Return html page for given error number'''
+        filename = os.path.join(self._project_dir, 'apps', 'site', 'templates', '%s.html' % code)
+        if os.path.exists(filename):
+            fd = open(filename, "r")
+            text = fd.read()
+            fd.close()
+            if development_env() and text:
+                return text.replace("[ERROR MESSAGES]", "\n".join(self._errors))
+            return text
+        return ""
 
     def _get_traceback(self):
         errors = {"request": self,
