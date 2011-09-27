@@ -1,4 +1,4 @@
-GAE framwork - flexible web framework to build websites more quickly.
+GAE framework - flexible web framework to build websites more quickly.
 
 Visit www.gaeframework.com to get more information.
 
@@ -6,10 +6,14 @@ Visit www.gaeframework.com to get more information.
 
 GAE framework v2.0.11.
 
+  * (changed) All applications now used WTForms and Jinja2 templates
   * (changed) Now in development environment configurations reloaded on each request
   * (changed) Now all applications moved to "apps" directory
   * (changed) Changed name of gae-manage.py to manage.py
   * (changed) Urls mapping in config.yaml has changed attribute name from "tag" to "short_name"
   * (changed) Improved traceback
+  * (new) Added support of Jinja2 templates with pre-compilation
+  * (new) Added support of WTForms
   * (new) Added reverce_url() method to gae.tools.urls module
+  * (deleted) Deleted Django framework support
   * (deleted) Now we have not support pypi to install framework
