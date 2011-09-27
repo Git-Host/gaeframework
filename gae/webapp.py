@@ -38,6 +38,8 @@ class Content:
             return simplejson.dumps(self.data)
         elif self.mime_type == "xml":
             raise NotImplemented
+        elif self.mime_type == "text":
+            return self.data
         return self.data
 
 #    def __str__(self):
@@ -127,6 +129,10 @@ class Request(webapp.Request):
         variables['current_page'] = self.path
         # load template from global templates
         return Content(variables, template_name)
+
+    def text(self, text):
+        '''Show plain text'''
+        return Content(text, mime_type="text")
 
     def json(self, **variables):
         '''Convert variables dict to JSON representation'''
@@ -236,12 +242,12 @@ class WSGIApplication(webapp.WSGIApplication):
                     response.out.write("<html><body><pre>%s</pre></body></html>" % traceback_message)
                 logging.error("Request to handler %s.%s completed with error 500" % (app_name, app_controller))
                 logging.error(traceback_message)
-
-        if response.has_error(): # show error page (404, 500)
-            response.clear()
-            error_page = self._get_error_page(response.status)
-            if error_page:
-                response.out.write(error_page)
+            else:
+                if response.has_error(): # show error page (404, 500)
+                    response.clear()
+                    error_page = self._get_error_page(response.status)
+                    if error_page:
+                        response.out.write(error_page)
 
         response.wsgi_write(start_response)
         return ['']
