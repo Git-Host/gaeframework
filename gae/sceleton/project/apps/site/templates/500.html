@@ -1,12 +1,15 @@
-{% extends 'site/base.html' %}
+<html>
+<head>
+    <title>Server error</title>
+</head>
+<body>
 
-{% block base_title %}Server error{% endblock %}
-
-{% block base_content %}
   <h1>Server error</h1>
 
   <p>
     <b>This page executed with errors.</b>
-    Please try again after few minutes, or <a href="{{ previous_page }}">go back</a>.
+    Please try again after few minutes, or go to <a href="/">homepage</a>.
   </p>
-{% endblock %}
+
+</body>
+</html>

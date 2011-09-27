@@ -10,7 +10,7 @@ from django.conf import settings as django_settings
 from django.utils import simplejson
 from gae.sessions import SessionMiddleware, get_current_session
 from gae.config import get_config
-from gae.tools import installed_apps
+from gae.tools import installed_apps, development_env
 from gae.tools.urls import prepare_url_vars
 from gae.exceptions import AccessDenied, PageNotFound, Redirect, IncorrectUrlDefinition
 from gae import template
@@ -224,6 +224,15 @@ class WSGIApplication(webapp.WSGIApplication):
                     logging.error("Run %s.%s" % (app_name, app_controller))
                     logging.error(traceback_message)
 
+        if response.has_error(): # show error page (404, 500)
+            response.clear()
+            filename = os.path.join(self._project_dir, 'apps', 'site', 'templates', '%s.html' % response.status)
+            if os.path.exists(filename):
+                fd = open(filename, "r")
+                text = fd.read()
+                fd.close()
+                response.out.write(text)
+
         response.wsgi_write(start_response)
         return ['']
     
@@ -375,9 +384,12 @@ class WSGIApplication(webapp.WSGIApplication):
 def run(project_dir, appstats=True, debug=None):
     # auto detect environment (development or production)
     if debug is None:
-        debug = os.environ['SERVER_SOFTWARE'].startswith('Development')
+        debug = development_env()
     COOKIE_KEY = 'my_private_key_used_for_this_application_%s' % get_application_id()
-    app = WSGIApplication.active_instance or WSGIApplication(project_dir, debug)
+    if development_env(): # always reload configuration
+        app = WSGIApplication(project_dir, debug)
+    else:
+        app = WSGIApplication.active_instance or WSGIApplication(project_dir, debug)
     app = SessionMiddleware(app, cookie_key=COOKIE_KEY, cookie_only_threshold=0)
     if appstats:
         app = recording.appstats_wsgi_middleware(app)
