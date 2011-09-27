@@ -220,9 +220,8 @@ class WSGIApplication(webapp.WSGIApplication):
                 traceback_message = self._get_traceback()
                 if self.__debug:
                     response.out.write("<html><body><pre>%s</pre></body></html>" % traceback_message)
-                else:
-                    logging.error("Run %s.%s" % (app_name, app_controller))
-                    logging.error(traceback_message)
+                logging.error("Request to handler %s.%s completed with error 500" % (app_name, app_controller))
+                logging.error(traceback_message)
 
         if response.has_error(): # show error page (404, 500)
             response.clear()
