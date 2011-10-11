@@ -2,7 +2,7 @@
 Comments - attach comments to any object.
 '''
 import re
-from gae import db
+from gae.db import Model, fields
 from apps.comments.forms import UserCommentForm
 from apps.user import login_required
 
@@ -17,7 +17,7 @@ def create_comment(request):
     data = request.POST.copy()
     if data:
         # get object model name
-        object_key = db.Key(data['obj'])
+        object_key = fields.Key(data['obj'])
         object_type = object_key.kind()
         # get application name
         path = re.findall("[A-Z][^A-Z]*", object_type)[0].lower()

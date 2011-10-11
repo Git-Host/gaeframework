@@ -1,15 +1,15 @@
 from gae.config import get_config 
-from gae import db
+from gae.db import Model, UniqueModel, fields
 
-class User(db.UniqueModel, db.Model):
+class User(Model):
     '''User registered by nick name and password in local datastore'''
     KEY_NAME    = "%(nick)s"
-    nick        = db.SlugProperty(required=True, min_length=3, max_length=25)
-    password    = db.StringProperty(required=True, min_length=5, max_length=25)
-    created     = db.DateTimeProperty(auto_now_add=True)
-    last_access = db.DateTimeProperty(auto_now=True)
-    active      = db.BooleanProperty(default=False)
-    roles       = db.StringListProperty()
+    nick        = fields.Slug(required=True, min_length=3, max_length=25)
+    password    = fields.String(required=True, min_length=5, max_length=25)
+    created     = fields.DateTime(auto_now_add=True)
+    last_access = fields.DateTime(auto_now=True)
+    active      = fields.Boolean(default=False)
+    roles       = fields.StringList()
 
     def has_role(self, role):
         # predefined user in project config file
