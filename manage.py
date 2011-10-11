@@ -25,7 +25,7 @@ import yaml
 LOCAL_HOST = '127.0.0.1:8000'
 
 
-def usage(app_name):
+def usage(script_name):
     return """
 Usage: %s <command>
 
@@ -36,10 +36,10 @@ Commands:
       --remote              Work with remote datastore (on server).
   new [project]             Create new project.
       --replace             Create new project in existing directory.
-  new [project].[app]       Create new application in given project.
-  install [project].[app]   Create symlink to application into 'apps'.
+  new app [project]         Create new application in given project.
+  install app [project]     Create symlink to application into 'apps'.
   test [project]            Run tests for project.
-  test [project].[app]      Run tests for application in given project.""" % app_name
+  test app [project]        Run tests for application in given project.""" % script_name
 
 
 def create_project(project_name, replace=False):
@@ -171,11 +171,18 @@ def replace_text(path, find_me, replace_to, recurcive=False):
     return True
 
 
-def main(command, project_name, *args):
+def main(command, args, options):
     '''
     Execute command
     '''
+    # is current directory a project?
+    project_name = os.path.dirname(os.getcwd())
+    if not os.path.exists(os.path.join(project_name, 'app.yaml')):
+        if len(args) == 0:
+            raise Exception("Current directory is not gaeframework project. You can specify project directory as last argument")
+        project_name = args[-1]
     project_name = project_name.strip(' /\\') # delete slash around project name
+    print project_name
     sys.path.insert(0, os.path.join(os.getcwd(), project_name))
     if command == "run":
         flags = ["--address=%s" % LOCAL_HOST.split(':')[0],
@@ -186,7 +193,7 @@ def main(command, project_name, *args):
                  "--use_sqlite",
                  "--require_indexes",
                  "--disable_static_caching",
-                 ] + list(args)
+                 ] + list(options)
         os.system(os.path.join(os.path.dirname(gae_dir),
                                'google_appengine',
                                'dev_appserver.py %s %s') % (" ".join(flags), project_name))
@@ -195,23 +202,25 @@ def main(command, project_name, *args):
         # deploy to server
         os.system(os.path.join(os.path.dirname(gae_dir), 'google_appengine', 'appcfg.py update %s') % project_name)
     elif command == "debug":
-        remote = "--remote" in args
+        remote = "--remote" in options
         debug_project(project_name, remote=remote)
     elif command == "new":
-        replace = "--replace" in args
+        replace = "--replace" in options
+        create_project(project_name, replace=replace)
+    elif command == "newapp":
         try:
             project_name, app_name = project_name.split('.', 1)
             create_project(project_name)
             create_app(project_name, app_name)
         except ValueError:
-            create_project(project_name, replace=replace)
+            raise Exception("Please, specify application name in style 'manage.py newapp app_name [project_name]'")
     elif command == "install":
         try:
             project_name, app_name = project_name.split('.', 1)
             create_project(project_name)
             install_app(project_name, app_name)
         except ValueError:
-            raise Exception("Please, specify application name in style 'gae-manage.py install project_name.app_name'")
+            raise Exception("Please, specify application name in style 'manage.py install app_name [project_name]'")
     elif command == "test":
         try:
             project_name, app_name = project_name.split('.', 1)
@@ -226,6 +235,8 @@ def main(command, project_name, *args):
 
 if __name__ == '__main__':
     try:
-        main(*sys.argv[1:])
+        args = [arg for arg in sys.argv[1:] if not arg.startswith('--')]
+        options = [arg for arg in sys.argv[1:] if arg.startswith('--')]
+        main(args[0], args[1:], options)
     except TypeError:
         print usage(sys.argv[0])
