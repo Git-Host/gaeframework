@@ -172,8 +172,8 @@ class WSGIApplication(webapp.WSGIApplication):
             self.prepare_template_engine()
             WSGIApplication.active_instance = self
         except Exception, e:
+            # TODO: show traceback on core errors
             self._errors.append(str(e))
-        
     
     def __call__(self, environ, start_response):
         """
@@ -264,12 +264,15 @@ class WSGIApplication(webapp.WSGIApplication):
         if flag_name in db._kind_map:
             return False
         for app_name in installed_apps():
+            app_module_path = "apps.%s.models" % app_name
             try:
-                app_models = __import__("apps.%s.models" % app_name, {}, {}, ["models"])
+                app_models = __import__(app_module_path, {}, {}, ["models"])
             except ImportError, e:
-                logging.warning("File 'apps/%s/models.py' not loaded. %s" % (app_name, e))
+                logging.warning("Module '%s' not loaded. %s" % (app_module_path, e))
                 continue
             models = [getattr(app_models, model_name) for model_name in dir(app_models) if not model_name.startswith("_") and model_name[0].isupper()]
+            # use only models, defined in this application
+            models = [model for model in models if model.__module__ == app_module_path]
             for model in models:
                 db._kind_map[model.kind()] = model
         db._kind_map[flag_name] = True
