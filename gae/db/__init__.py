@@ -328,7 +328,7 @@ class UserProperty(Property):
         from apps.user import get_current_user
         if self.auto_current_user:
             user = get_current_user()
-        else:
+        if user is None:
             user = super(UserProperty, self).get_value_for_datastore(model_instance)
         # return user representation for save as Key
         return user and user.key()
