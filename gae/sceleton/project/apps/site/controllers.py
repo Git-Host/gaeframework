@@ -7,6 +7,12 @@ def index(request):
     '''
     return request.render("site/index")
 
+def redirect(request, address, permanent=False):
+    '''
+    Redirect user to specified page
+    '''
+    return request.redirect(address, permanent=permanent)
+
 def cron(request):
     '''
     Execute cron jobs for each application with file cron.py
