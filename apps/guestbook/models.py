@@ -1,10 +1,10 @@
-from gae import db
+from gae.db import Model, fields
 from apps.user import get_current_user
 
-class Message(db.Model):
-    author  = db.UserProperty(auto_current_user_add=True)
-    content = db.StringProperty(multiline=True, required=True)
-    date    = db.DateTimeProperty(auto_now_add=True)
+class Message(Model):
+    author  = fields.User(auto_current_user_add=True)
+    content = fields.String(multiline=True, required=True)
+    date    = fields.DateTime(auto_now_add=True)
     
     def manager(self):
         '''If user allow to manage current message'''

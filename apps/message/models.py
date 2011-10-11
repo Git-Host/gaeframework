@@ -1,14 +1,14 @@
-from gae import db
+from gae.db import Model, fields
 
-class Message(db.Model):
-    created     = db.DateTimeProperty(auto_now_add=True)
-    title       = db.StringProperty(max_length=250, required=True)
-    text        = db.TextProperty(required=True)
-    email       = db.EmailProperty()
+class Message(Model):
+    created     = fields.DateTime(auto_now_add=True)
+    title       = fields.String(max_length=250, required=True)
+    text        = fields.Text(required=True)
+    email       = fields.Email()
 
 class DirectMessage(Message):
-    from_user   = db.UserProperty(auto_current_user_add=True, required=True)
-    to_user     = db.UserProperty(required=True)
+    from_user   = fields.User(auto_current_user_add=True, required=True)
+    to_user     = fields.User(required=True)
 
 class Feedback(Message):
     SUBJECTS = ((0, "Other"),
@@ -16,4 +16,4 @@ class Feedback(Message):
                 (2, "How it works?"),
                 (3, "Advertising"),
                 (4, "Investment"))
-    subject     = db.StringProperty(choices=SUBJECTS, required=True)
+    subject     = fields.String(choices=SUBJECTS, required=True)

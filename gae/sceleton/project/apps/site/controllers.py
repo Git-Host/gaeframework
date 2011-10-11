@@ -1,5 +1,5 @@
 from gae.config import get_config
-from gae import db
+from gae.db import Model
 
 def index(request):
     '''
@@ -31,7 +31,7 @@ def data_migration(request):
     for app_name in apps:
         app_models = __import__("apps.%s.models" % app_name)
         app_models = [model for model in dir(app_models)
-                      if not model.startswith('_') and model[0].isuper() and isinstance(model, db.Model)]
+                      if not model.startswith('_') and model[0].isuper() and isinstance(model, Model)]
         for model in app_models:
             migrate_object(app_name, model)
     return "Data migration started!"

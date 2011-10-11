@@ -1,15 +1,15 @@
-from gae import db
+from gae.db import Model, fields
 from apps.user import get_current_user
 
-class Todo(db.Model):
-    author           = db.UserProperty(auto_current_user_add=True, required=True)
-    title            = db.StringProperty(required=True)
-    description      = db.StringProperty(multiline=True)
-    url              = db.StringProperty()
-    created          = db.DateTimeProperty(auto_now_add=True)
-    updated          = db.DateTimeProperty(auto_now=True)
-    due_date         = db.StringProperty(required=True)
-    finished         = db.BooleanProperty(default=False)
+class Todo(Model):
+    author           = fields.User(auto_current_user_add=True, required=True)
+    title            = fields.String(required=True)
+    description      = fields.String(multiline=True)
+    url              = fields.String()
+    created          = fields.DateTime(auto_now_add=True)
+    updated          = fields.DateTime(auto_now=True)
+    due_date         = fields.String(required=True)
+    finished         = fields.Boolean(default=False)
 
     def manager(self):
         '''If user allow to manage current todo'''

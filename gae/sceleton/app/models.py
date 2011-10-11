@@ -1,2 +1,2 @@
-from gae import db
+from gae.db import Model, fields
 

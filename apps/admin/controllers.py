@@ -8,7 +8,7 @@ from gae.tools.pagination import Pagination
 from apps.user import login_required
 
 """
-TODO: hide in SelfReferenceProperty option reference to current object
+TODO: hide in SelfReference option reference to current object
 """
 def _load_config(app_name, model_name):
     """Load model configuration"""

@@ -1,30 +1,30 @@
-from gae import db
+from gae.db import Model, UniqueModel, fields
 
-class Currency(db.Model):
+class Currency(Model):
     UNIQUE      = ("name", "symbol")
-    name        = db.StringProperty(max_length=50, required=True)
-    symbol      = db.StringProperty(max_length=10, required=True)
+    name        = fields.String(max_length=50, required=True)
+    symbol      = fields.String(max_length=10, required=True)
 
     def __unicode__(self):
         return self.name
 
-class Country(db.UniqueModel, db.Model):
+class Country(UniqueModel, Model):
     '''Country'''
     KEY_NAME = "%(slug)s"
-    slug     = db.SlugProperty("short country form (us, uk, fr)", required=True, max_length=50)
-    name     = db.StringProperty(required=True, max_length=100)
+    slug     = fields.Slug("short country form (us, uk, fr)", required=True, max_length=50)
+    name     = fields.String(required=True, max_length=100)
     # main currency used in this country
-    currency = db.ReferenceProperty(Currency)
+    currency = fields.Reference(Currency)
 
     def __unicode__(self):
         return self.name
 
-class Region(db.UniqueModel, db.Model):
+class Region(UniqueModel, Model):
     '''Region (state)'''
     KEY_NAME = "%(slug)s"
-    slug     = db.SlugProperty("short state form (kiev, msk, ny)", required=True, max_length=50)
-    name     = db.StringProperty(required=True, max_length=100)
-    country  = db.ReferenceProperty(reference_class=Country, required=True)
+    slug     = fields.Slug("short state form (kiev, msk, ny)", required=True, max_length=50)
+    name     = fields.String(required=True, max_length=100)
+    country  = fields.Reference(reference_class=Country, required=True)
 
     def __unicode__(self):
         return self.name
@@ -32,14 +32,14 @@ class Region(db.UniqueModel, db.Model):
     def full_name(self):
         return "%s, %s" % (self.name, self.country)
 
-class City(db.UniqueModel, db.Model):
+class City(UniqueModel, Model):
     '''City'''
     KEY_NAME = "%(slug)s"
     UNIQUE   = ("phone_code", ("name", "region"))
-    slug     = db.SlugProperty("short city form (kiev, msk, ny)", required=True, max_length=50)
-    name     = db.StringProperty(required=True, max_length=100)
-    region   = db.ReferenceProperty(reference_class=Region, required=True)
-    phone_code  = db.StringProperty(max_length=6)
+    slug     = fields.Slug("short city form (kiev, msk, ny)", required=True, max_length=50)
+    name     = fields.String(required=True, max_length=100)
+    region   = fields.Reference(reference_class=Region, required=True)
+    phone_code  = fields.String(max_length=6)
 
     def __unicode__(self):
         return self.name
